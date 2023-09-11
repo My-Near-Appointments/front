@@ -1,95 +1,86 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+'use client';
+
+import { AuthTypes } from '@/hooks/authentication/types/auth-actions.types';
+import { useAuthentication } from '@/hooks/authentication/useAuthentication';
+import {
+  Box,
+  Button,
+  Container,
+  Flex,
+  Heading,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
+import { useRouter } from 'next/navigation';
+import { useCallback } from 'react';
 
 export default function Home() {
+  const { dispatch } = useAuthentication();
+  const router = useRouter();
+
+  const handleLogin = useCallback(() => {
+    dispatch({ type: AuthTypes.LOGIN });
+    router.push('/dashboard');
+  }, [router, dispatch]);
+
+  const goToRegistration = useCallback(() => {
+    router.push('/registration');
+  }, [router]);
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <Container maxW={'4xl'} height={'100vh'}>
+      <Stack
+        as={Box}
+        textAlign={'center'}
+        direction={'column'}
+        spacing={6}
+        py={{ base: 20, md: 36 }}
+      >
+        <Heading
+          fontWeight={600}
+          fontSize={{ base: '2xl', sm: '4xl', md: '6xl' }}
+          lineHeight={'110%'}
+        >
+          Cansado de planilhas? <br />
+          <Text as={'span'} color={'green.400'}>
+            Gerencie os agendamentos de sua barbearia.
+          </Text>
+        </Heading>
+
+        <Text color={'white.500'}>
+          Inicie agora e não se preocupe com problemas de agendamento. A gestão
+          da sua barbearia irá ficar mais organizada!
+        </Text>
+
+        <Stack
+          justifyContent={'center'}
+          alignItems={'center'}
+          flexDir={'column'}
+          spacing={4}
+          as={Flex}
+        >
+          <Button
+            colorScheme={'green'}
+            bg={'green.400'}
+            rounded={'full'}
+            px={6}
+            _hover={{
+              bg: 'green.500',
+            }}
+            onClick={goToRegistration}
           >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+            Começar agora!
+          </Button>
+          <Button
+            variant={'link'}
+            colorScheme={'blue'}
+            size={'sm'}
+            onClick={handleLogin}
+          >
+            Login
+          </Button>
+        </Stack>
+      </Stack>
+    </Container>
+  );
 }
