@@ -1,99 +1,80 @@
 'use client';
 
-import { BsBuildings, BsPerson } from 'react-icons/bs';
 import {
+  Box,
   Button,
+  ButtonGroup,
   Flex,
-  FormControl,
-  FormLabel,
-  Heading,
-  Input,
-  InputGroup,
-  InputLeftElement,
-  Stack,
-  Textarea,
+  useToast,
   useColorModeValue,
 } from '@chakra-ui/react';
-import { EmailIcon } from '@chakra-ui/icons';
+import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons';
+import { useCallback, useState } from 'react';
+import CompanyForm from '@/components/CompanyForm/CompanyForm';
+import UserForm from '@/components/UserForm/UserForm';
 
 export default function Registration() {
+  const toast = useToast();
+  const [step, setStep] = useState(1);
+
+  const handleSubmit = useCallback(() => {
+    toast({
+      title: 'Conta criada com sucesso.',
+      description: 'A criação da conta foi feita com sucesso.',
+      status: 'success',
+      duration: 3000,
+      isClosable: true,
+    });
+  }, [toast]);
+
   return (
     <Flex
-      w={'100vw'}
-      h={'calc(100vh - 64px)'}
-      align={'center'}
-      justify={'center'}
       bg={useColorModeValue('gray.50', 'gray.800')}
+      h={'calc(100vh - 64px)'}
     >
-      <Stack
-        boxShadow={'2xl'}
+      <Box
         bg={useColorModeValue('white', 'gray.700')}
-        rounded={'xl'}
-        w={{ base: 'full', md: 'md' }}
-        p={10}
-        spacing={8}
-        align={'center'}
+        borderWidth="1px"
+        rounded="md"
+        boxShadow="sm"
+        maxWidth={900}
+        width="100%"
+        p={6}
+        m="10px auto"
       >
-        <Heading
-          fontSize={{
-            base: '4xl',
-            md: '5xl',
-          }}
-        >
-          Cadastre-se
-        </Heading>
-        <Stack spacing={3}>
-          <FormControl isRequired>
-            <FormLabel>Nome</FormLabel>
-            <InputGroup pointerEvents="none">
-              <InputLeftElement>
-                <BsPerson />
-              </InputLeftElement>
-              <Input placeholder="Seu nome" size="md" />
-            </InputGroup>
-          </FormControl>
-
-          <FormControl isRequired>
-            <FormLabel>Email</FormLabel>
-            <InputGroup pointerEvents="none">
-              <InputLeftElement>
-                <EmailIcon />
-              </InputLeftElement>
-              <Input placeholder="Seu e-mail" size="md" />
-            </InputGroup>
-          </FormControl>
-
-          <FormControl isRequired>
-            <FormLabel>CNPJ</FormLabel>
-            <InputGroup pointerEvents="none">
-              <InputLeftElement>
-                <BsBuildings />
-              </InputLeftElement>
-              <Input type="number" placeholder="Seu CNPJ" size="md" />
-            </InputGroup>
-          </FormControl>
-          <FormControl isRequired>
-            <FormLabel>CNPJ</FormLabel>
-            <InputGroup pointerEvents="none">
-              <InputLeftElement>
-                <BsBuildings />
-              </InputLeftElement>
-              <Input type="number" placeholder="Seu CNPJ" size="md" />
-            </InputGroup>
-          </FormControl>
-          <FormControl isRequired>
-            <FormLabel>Descrição</FormLabel>
-
-            <Textarea
-              name="description"
-              placeholder="Descrição da empresa"
-              rows={6}
-              resize="none"
-            />
-          </FormControl>
-          <Button>Realizar cadastro</Button>
-        </Stack>
-      </Stack>
+        {step === 1 ? <UserForm /> : <CompanyForm />}
+        <ButtonGroup mt="5%" w="100%">
+          <Flex w="100%" justifyContent="space-between">
+            <Flex>
+              <Button
+                colorScheme={'green'}
+                leftIcon={<ArrowBackIcon />}
+                onClick={() => {
+                  setStep(step - 1);
+                }}
+                isDisabled={step === 1}
+                variant="outline"
+                w="7rem"
+                mr="5%"
+              >
+                Voltar
+              </Button>
+              <Button
+                colorScheme={'green'}
+                rightIcon={<ArrowForwardIcon />}
+                w="7rem"
+                isDisabled={step === 2}
+                onClick={() => {
+                  setStep(step + 1);
+                }}
+                variant="outline"
+              >
+                Avançar
+              </Button>
+            </Flex>
+          </Flex>
+        </ButtonGroup>
+      </Box>
     </Flex>
   );
 }
