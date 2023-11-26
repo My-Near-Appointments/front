@@ -2,30 +2,42 @@
 
 import {
   Box,
-  Button,
-  ButtonGroup,
   Flex,
-  useToast,
   useColorModeValue,
+  useToast,
 } from '@chakra-ui/react';
-import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons';
 import { useCallback, useState } from 'react';
 import CompanyForm from '@/components/CompanyForm/CompanyForm';
 import UserForm from '@/components/UserForm/UserForm';
+import { useRouter } from 'next/navigation';
 
 export default function Registration() {
-  const toast = useToast();
   const [step, setStep] = useState(1);
+  const router = useRouter();
+  const toast = useToast();
 
-  const handleSubmit = useCallback(() => {
+  const changeStep = useCallback(() => {
+    setStep(2);
+  }, []);
+
+  const showCompanyToast = useCallback(() => {
     toast({
-      title: 'Conta criada com sucesso.',
-      description: 'A criação da conta foi feita com sucesso.',
+      title: 'Usuário criado. Agora preencha informações sobre a empresa',
       status: 'success',
       duration: 3000,
-      isClosable: true,
+      isClosable: false,
     });
   }, [toast]);
+
+  const handleUserCreated = useCallback((isCompany: boolean) => {
+    if (!isCompany) {
+      router.push('/registration/finished-registration');
+      return;
+    }
+
+    showCompanyToast();
+    changeStep();
+  }, [changeStep, router, showCompanyToast]);
 
   return (
     <Flex
@@ -42,38 +54,7 @@ export default function Registration() {
         p={6}
         m="10px auto"
       >
-        {step === 1 ? <UserForm /> : <CompanyForm />}
-        <ButtonGroup mt="5%" w="100%">
-          <Flex w="100%" justifyContent="space-between">
-            <Flex>
-              <Button
-                colorScheme={'green'}
-                leftIcon={<ArrowBackIcon />}
-                onClick={() => {
-                  setStep(step - 1);
-                }}
-                isDisabled={step === 1}
-                variant="outline"
-                w="7rem"
-                mr="5%"
-              >
-                Voltar
-              </Button>
-              <Button
-                colorScheme={'green'}
-                rightIcon={<ArrowForwardIcon />}
-                w="7rem"
-                isDisabled={step === 2}
-                onClick={() => {
-                  setStep(step + 1);
-                }}
-                variant="outline"
-              >
-                Avançar
-              </Button>
-            </Flex>
-          </Flex>
-        </ButtonGroup>
+        {step === 1 ? <UserForm onRegistrationComplete={handleUserCreated} /> : <CompanyForm />}
       </Box>
     </Flex>
   );

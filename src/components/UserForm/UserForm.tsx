@@ -1,3 +1,4 @@
+import { useCallback, useState } from 'react';
 import {
   Heading,
   Flex,
@@ -8,6 +9,10 @@ import {
   InputLeftElement,
   FormHelperText,
   Button,
+  Radio,
+  RadioGroup,
+  Stack,
+  useToast,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -18,30 +23,33 @@ import {
   BsFillPersonFill,
   BsFillPersonVcardFill,
 } from 'react-icons/bs';
-import { CheckIcon, EmailIcon } from '@chakra-ui/icons';
+import { EmailIcon } from '@chakra-ui/icons';
 import { UserFormData } from '@/components/UserForm/interfaces/user-form-data.interface';
 import axiosInstance from '@/services/axios/axios-instance';
-import { useState } from 'react';
+import { UserFormProps } from '@/components/UserForm/interfaces/user-form-props.interface';
 
 const schema = yup.object().shape({
-  username: yup.string().required().min(4).max(20),
-  firstName: yup.string().required().min(2),
-  lastName: yup.string().required().min(2),
+  username: yup.string().required('username é obrigatório').min(4, 'Precisa conter no mínimo 4 caracteres').max(20, 'Pode conter no máximo 20 caracteres'),
+  firstName: yup.string().required('Nome é obrigatório').min(2),
+  lastName: yup.string().required('Sobrenome é obrigatório').min(2),
   email: yup.string().email('Email inválido').required('Email é obrigatório'),
   password: yup.string()
-    .required()
-    .min(8).matches(/^(?=.*[A-Z])/, "Must Contain One Uppercase Character")
-    .matches(/^(?=.*[!@#\$%\^&\*])/, "Must Contain One Special Case Character"),
-  passwordConfirmation: yup.string().oneOf([yup.ref('password'), undefined], 'Passwords must match')
+    .required('É necessário criar uma senha')
+    .min(8, 'A senha precisa ter no mínimo 8 caracteres').matches(/^(?=.*[A-Z])/, "Precisa conter uma letra maiúscula")
+    .matches(/^(?=.*[!@#\$%\^&\*])/, "Precisa conter um símbolo especial"),
+  passwordConfirmation: yup.string().oneOf([yup.ref('password'), undefined], 'Senhas devem ser iguais'),
+  userRole: yup.string().oneOf(['CompanyAdmin', 'Customer'], 'Role inválido').required('Role é obrigatório'),
 });
 
-export default function UserForm() {
+export default function UserForm({ onRegistrationComplete }: UserFormProps) {
   const [isRegistering, setIsRegistering] = useState(false);
+  const toast = useToast();
 
   const { register, handleSubmit, formState: { errors, isValid } } = useForm({
     resolver: yupResolver(schema),
     mode: 'onChange',
   });
+
   const onSubmit = (data: UserFormData) => {
     setIsRegistering(true);
 
@@ -49,13 +57,28 @@ export default function UserForm() {
       username: data.username,
       name: `${data.firstName} ${data.lastName}`,
       email: data.email,
+      userRole: data.userRole,
       password: data.password,
     }
+
     axiosInstance.post('/user', userData)
-      .then((response) => {
+      .then(() => {
         setIsRegistering(false);
+        onRegistrationComplete(userData.userRole === 'CompanyAdmin');
+      }).catch(() => {
+        setIsRegistering(false);
+        showRegistrationErrorToast();
       });
   };
+
+  const showRegistrationErrorToast = useCallback(() => {
+    toast({
+      title: 'Ocorreu um erro ao tentar criar o usuário',
+      status: 'error',
+      duration: 3000,
+      isClosable: false,
+    });
+  }, [toast]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -160,10 +183,18 @@ export default function UserForm() {
         </InputGroup>
         <FormHelperText>{errors.passwordConfirmation?.message}</FormHelperText>
       </FormControl>
+
+      <Flex mt="2%">
+        <RadioGroup defaultValue='Customer'>
+          <Stack spacing={4} direction='row'>
+            <Radio {...register('userRole')} value='Customer'>Quero realizar agendamentos</Radio>
+            <Radio {...register('userRole')} value='CompanyAdmin'>Quero cadastrar minha barbearia</Radio>
+          </Stack>
+        </RadioGroup>
+      </Flex>
       <Flex mt="10%" justify={'center'}>
         <Button
           type='submit'
-          leftIcon={<CheckIcon />}
           w="100%"
           colorScheme={'green'}
           variant="solid"
