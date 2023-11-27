@@ -8,37 +8,111 @@ import {
   Input,
   FormHelperText,
   Textarea,
+  useToast,
+  Button,
+  Flex,
+  Text,
+  Stack,
+  InputRightElement,
+  Spinner,
 } from '@chakra-ui/react';
 import { BsBuildings, BsJournalText } from 'react-icons/bs';
 
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { CompanyFormData } from '@/components/CompanyForm/interfaces/company-form-data.interface';
+import axiosInstance from '@/services/axios/axios-instance';
+import { useUser } from '@/hooks/user/useUser';
+import { useCallback, useEffect, useState } from 'react';
+import { CompanyFormProps } from '@/components/CompanyForm/interfaces/company-form-props.interface';
+import { useAddress } from '@/hooks/address/useAddress';
 
 const schema = yup.object().shape({
-  companyName: yup.string().required('Nome da empresa é obrigatório'),
-  cnpj: yup.string().required('CNPJ é obrigatório'),
-  email: yup.string().email('Email inválido').required('Email é obrigatório'),
+  name: yup.string().required('Nome da empresa é obrigatório'),
   description: yup.string().required('Descrição é obrigatória'),
+  email: yup.string().email('Email inválido').required('Email é obrigatório'),
+  cnpj: yup.string().min(14, 'CNPJ deve possuir 14 dígitos').required('CNPJ é obrigatório'),
+  address: yup.object().shape({
+    street: yup.string().required('Rua é obrigatória'),
+    number: yup.number().required('Número é obrigatório'),
+    neighborhood: yup.string().required('Bairro é obrigatório'),
+    city: yup.string().required('Cidade é obrigatória'),
+    state: yup.string()
+      .oneOf([
+        'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO',
+        'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI',
+        'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
+      ], 'Estado inválido')
+      .required('Estado é obrigatório'),
+    zip: yup.string().min(8, 'CEP precisa ter 8 dígitos').required('CEP é obrigatório'),
+  }),
 });
 
-interface FormData {
-  companyName: string;
-  cnpj: string;
-  email: string;
-  description: string;
-}
+export default function CompanyForm({ finishedCompanyCreation }: CompanyFormProps) {
+  const toast = useToast();
+  const { state: { userId } } = useUser();
+  const [isRegistering, setIsRegistering] = useState(false);
 
-export default function CompanyForm() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid },
+    setValue,
+    watch,
   } = useForm({
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = (data: FormData) => console.log(data);
+  const zip = watch('address.zip');
+  const { isUpdatingAddress, address, error } = useAddress(zip);
+
+  const onSubmit = (data: CompanyFormData) => {
+    setIsRegistering(true);
+
+    const companyData = {
+      ...data,
+      adminId: userId,
+    }
+    axiosInstance.post('/company', companyData)
+      .then(() => {
+        finishedCompanyCreation();
+      }).catch(() => {
+        showRegistrationErrorToast();
+        setIsRegistering(false);
+      });
+  };
+
+  const showAddressRequestError = useCallback(() => {
+    toast({
+      title: 'Ocorreu um erro ao tentar buscar o endereço',
+      status: 'error',
+      duration: 3000,
+      isClosable: false,
+    });
+  }, [toast]);
+
+  useEffect(() => {
+    if (address) {
+      setValue('address.street', address.street);
+      setValue('address.neighborhood', address.neighborhood);
+      setValue('address.city', address.city);
+      setValue('address.state', address.state);
+    }
+
+    if (error) {
+      showAddressRequestError();
+    }
+  }, [address, error, setValue, showAddressRequestError]);
+
+  const showRegistrationErrorToast = useCallback(() => {
+    toast({
+      title: 'Ocorreu um erro ao tentar criar a empresa',
+      status: 'error',
+      duration: 3000,
+      isClosable: false,
+    });
+  }, [toast]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -53,9 +127,9 @@ export default function CompanyForm() {
           <InputLeftElement>
             <BsBuildings />
           </InputLeftElement>
-          <Input {...register('companyName')} id="company-name" placeholder="Nome da empresa" />
+          <Input {...register('name')} id="company-name" placeholder="Nome da empresa" />
         </InputGroup>
-        <FormHelperText>{errors.companyName?.message}</FormHelperText>
+        <FormHelperText>{errors.name?.message}</FormHelperText>
       </FormControl>
 
       <FormControl mt="2%" isRequired>
@@ -96,6 +170,80 @@ export default function CompanyForm() {
         />
         <FormHelperText>{errors.description?.message}</FormHelperText>
       </FormControl>
+
+      <Stack direction={'column'} mt="2%" spacing={'1.5'}>
+        <Text>
+          Localização da empresa
+        </Text>
+        <FormControl isRequired mt="2%">
+          <FormLabel htmlFor="zip" fontWeight={'normal'}>
+            CEP
+          </FormLabel>
+          <InputGroup>
+            <InputRightElement>
+              {isUpdatingAddress && (
+                <Spinner size="sm" />
+              )}
+            </InputRightElement>
+            <Input {...register('address.zip')} id="zip" placeholder="CEP" />
+          </InputGroup>
+          <FormHelperText>{errors.address?.zip?.message}</FormHelperText>
+        </FormControl>
+
+        <FormControl isRequired mt="2%">
+          <FormLabel htmlFor="street" fontWeight={'normal'}>
+            Rua
+          </FormLabel>
+          <Input {...register('address.street')} id="street" placeholder="Rua" />
+          <FormHelperText>{errors.address?.street?.message}</FormHelperText>
+        </FormControl>
+
+        <FormControl isRequired mt="2%">
+          <FormLabel htmlFor="number" fontWeight={'normal'}>
+            Número
+          </FormLabel>
+          <Input {...register('address.number')} id="number" placeholder="Número" />
+          <FormHelperText>{errors.address?.number?.message}</FormHelperText>
+        </FormControl>
+
+        <FormControl isRequired mt="2%">
+          <FormLabel htmlFor="neighborhood" fontWeight={'normal'}>
+            Bairro
+          </FormLabel>
+          <Input {...register('address.neighborhood')} id="neighborhood" placeholder="Bairro" />
+          <FormHelperText>{errors.address?.neighborhood?.message}</FormHelperText>
+        </FormControl>
+
+        <FormControl isRequired mt="2%">
+          <FormLabel htmlFor="city" fontWeight={'normal'}>
+            Cidade
+          </FormLabel>
+          <Input {...register('address.city')} id="city" placeholder="Cidade" />
+          <FormHelperText>{errors.address?.city?.message}</FormHelperText>
+        </FormControl>
+
+        <FormControl isRequired mt="2%">
+          <FormLabel htmlFor="state" fontWeight={'normal'}>
+            Estado
+          </FormLabel>
+          <Input {...register('address.state')} id="state" placeholder="Estado" />
+          <FormHelperText>{errors.address?.state?.message}</FormHelperText>
+        </FormControl>
+      </Stack>
+
+      <Flex mt="10%" justify={'center'}>
+        <Button
+          type='submit'
+          w="100%"
+          colorScheme={'green'}
+          variant="solid"
+          isDisabled={!isValid || isRegistering}
+          isLoading={isRegistering}
+          loadingText="Cadastrando..."
+        >
+          Cadastrar empresa
+        </Button>
+      </Flex>
     </form>
   );
 }

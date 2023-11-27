@@ -39,11 +39,12 @@ export default function Registration() {
     changeStep();
   }, [changeStep, router, showCompanyToast]);
 
+  const handleCompanyCreated = useCallback(() => {
+    router.push('/registration/finished-registration');
+  }, [router]);
+
   return (
-    <Flex
-      bg={useColorModeValue('gray.50', 'gray.800')}
-      h={'calc(100vh - 64px)'}
-    >
+    <Flex bg={useColorModeValue('gray.50', 'gray.800')}>
       <Box
         bg={useColorModeValue('white', 'gray.700')}
         borderWidth="1px"
@@ -54,7 +55,7 @@ export default function Registration() {
         p={6}
         m="10px auto"
       >
-        {step === 1 ? <UserForm onRegistrationComplete={handleUserCreated} /> : <CompanyForm />}
+        {step === 1 ? <UserForm onRegistrationComplete={handleUserCreated} /> : <CompanyForm finishedCompanyCreation={handleCompanyCreated} />}
       </Box>
     </Flex>
   );

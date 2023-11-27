@@ -27,6 +27,8 @@ import { EmailIcon } from '@chakra-ui/icons';
 import { UserFormData } from '@/components/UserForm/interfaces/user-form-data.interface';
 import axiosInstance from '@/services/axios/axios-instance';
 import { UserFormProps } from '@/components/UserForm/interfaces/user-form-props.interface';
+import { useUser } from '@/hooks/user/useUser';
+import { UserTypes } from '@/hooks/user/types/user-actions.types';
 
 const schema = yup.object().shape({
   username: yup.string().required('username é obrigatório').min(4, 'Precisa conter no mínimo 4 caracteres').max(20, 'Pode conter no máximo 20 caracteres'),
@@ -44,6 +46,7 @@ const schema = yup.object().shape({
 export default function UserForm({ onRegistrationComplete }: UserFormProps) {
   const [isRegistering, setIsRegistering] = useState(false);
   const toast = useToast();
+  const { dispatch } = useUser();
 
   const { register, handleSubmit, formState: { errors, isValid } } = useForm({
     resolver: yupResolver(schema),
@@ -62,9 +65,14 @@ export default function UserForm({ onRegistrationComplete }: UserFormProps) {
     }
 
     axiosInstance.post('/user', userData)
-      .then(() => {
-        setIsRegistering(false);
+      .then((response) => {
         onRegistrationComplete(userData.userRole === 'CompanyAdmin');
+        dispatch({
+          type: UserTypes.SET_USER_ID,
+          payload: {
+            userId: response.data.id,
+          }
+        });
       }).catch(() => {
         setIsRegistering(false);
         showRegistrationErrorToast();
@@ -198,7 +206,7 @@ export default function UserForm({ onRegistrationComplete }: UserFormProps) {
           w="100%"
           colorScheme={'green'}
           variant="solid"
-          isDisabled={!isValid}
+          isDisabled={!isValid || isRegistering}
           isLoading={isRegistering}
           loadingText="Cadastrando..."
         >

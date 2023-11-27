@@ -7,12 +7,11 @@ import { AuthActions } from '@/hooks/authentication/types/auth-actions.types';
 import { createContext, useContext, useReducer } from 'react';
 
 const authContext = createContext<AuthenticationContextData>({
-  state: { isAuthenticated: false },
+  state: { isAuthenticated: false, token: '' },
   dispatch: () => {},
 });
 
-const authReducer = (state: AuthState, action: AuthActions) => {
-  console.log('CALLED', action, state);
+const authReducer = (state: AuthState, action: AuthActions): AuthState => {
   switch (action.type) {
     case 'LOGIN':
       return {
@@ -24,13 +23,17 @@ const authReducer = (state: AuthState, action: AuthActions) => {
         ...state,
         isAuthenticated: false,
       };
+    case 'SET_TOKEN':
+      return {
+        ...state,
+        token: action.payload?.token || '',
+      };
     default:
       return state;
   }
 };
-
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [state, dispatch] = useReducer(authReducer, { isAuthenticated: false });
+  const [state, dispatch] = useReducer(authReducer, { isAuthenticated: false, token: '' });
   return (
     <authContext.Provider value={{ state, dispatch }}>
       {children}
