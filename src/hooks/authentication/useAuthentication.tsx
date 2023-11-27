@@ -1,10 +1,20 @@
 'use client';
 
-import { AuthProviderProps } from '@/hooks/authentication/interfaces/auth-provider-props.interface';
-import { AuthState } from '@/hooks/authentication/interfaces/auth-state.interface';
-import { AuthenticationContextData } from '@/hooks/authentication/interfaces/authentication-context-data.interface';
-import { AuthActions } from '@/hooks/authentication/types/auth-actions.types';
 import { createContext, useContext, useReducer } from 'react';
+
+import {
+  AuthProviderProps
+} from '@/hooks/authentication/interfaces/auth-provider-props.interface';
+import {
+  AuthState
+} from '@/hooks/authentication/interfaces/auth-state.interface';
+import {
+  AuthenticationContextData
+// eslint-disable-next-line max-len
+} from '@/hooks/authentication/interfaces/authentication-context-data.interface';
+import {
+  AuthActions, AuthTypes
+} from '@/hooks/authentication/types/auth-actions.types';
 
 const authContext = createContext<AuthenticationContextData>({
   state: { isAuthenticated: false, token: '' },
@@ -13,17 +23,17 @@ const authContext = createContext<AuthenticationContextData>({
 
 const authReducer = (state: AuthState, action: AuthActions): AuthState => {
   switch (action.type) {
-    case 'LOGIN':
+    case AuthTypes.LOGIN:
       return {
         ...state,
         isAuthenticated: true,
       };
-    case 'LOGOUT':
+    case AuthTypes.LOGOUT:
       return {
         ...state,
         isAuthenticated: false,
       };
-    case 'SET_TOKEN':
+    case AuthTypes.SET_TOKEN:
       return {
         ...state,
         token: action.payload?.token || '',
@@ -33,7 +43,10 @@ const authReducer = (state: AuthState, action: AuthActions): AuthState => {
   }
 };
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [state, dispatch] = useReducer(authReducer, { isAuthenticated: false, token: '' });
+  const [state, dispatch] = useReducer(authReducer, {
+    isAuthenticated: false,
+    token: '',
+  });
   return (
     <authContext.Provider value={{ state, dispatch }}>
       {children}

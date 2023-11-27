@@ -1,3 +1,10 @@
+import { useCallback, useEffect, useState } from 'react';
+
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useForm } from 'react-hook-form';
+import { BsBuildings, BsJournalText } from 'react-icons/bs';
+import * as yup from 'yup';
+
 import { EmailIcon } from '@chakra-ui/icons';
 import {
   Heading,
@@ -16,42 +23,80 @@ import {
   InputRightElement,
   Spinner,
 } from '@chakra-ui/react';
-import { BsBuildings, BsJournalText } from 'react-icons/bs';
 
-import { useForm } from 'react-hook-form';
-import * as yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { CompanyFormData } from '@/components/CompanyForm/interfaces/company-form-data.interface';
-import axiosInstance from '@/services/axios/axios-instance';
-import { useUser } from '@/hooks/user/useUser';
-import { useCallback, useEffect, useState } from 'react';
-import { CompanyFormProps } from '@/components/CompanyForm/interfaces/company-form-props.interface';
 import { useAddress } from '@/hooks/address/useAddress';
+import { useUser } from '@/hooks/user/useUser';
+import axiosInstance from '@/services/axios/axios-instance';
+
+import {
+  CompanyFormData,
+} from '@/components/CompanyForm/interfaces/company-form-data.interface';
+import {
+  CompanyFormProps,
+} from '@/components/CompanyForm/interfaces/company-form-props.interface';
 
 const schema = yup.object().shape({
   name: yup.string().required('Nome da empresa é obrigatório'),
   description: yup.string().required('Descrição é obrigatória'),
   email: yup.string().email('Email inválido').required('Email é obrigatório'),
-  cnpj: yup.string().min(14, 'CNPJ deve possuir 14 dígitos').required('CNPJ é obrigatório'),
+  cnpj: yup
+    .string()
+    .min(14, 'CNPJ deve possuir 14 dígitos')
+    .required('CNPJ é obrigatório'),
   address: yup.object().shape({
     street: yup.string().required('Rua é obrigatória'),
     number: yup.number().required('Número é obrigatório'),
     neighborhood: yup.string().required('Bairro é obrigatório'),
     city: yup.string().required('Cidade é obrigatória'),
-    state: yup.string()
-      .oneOf([
-        'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO',
-        'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI',
-        'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
-      ], 'Estado inválido')
+    state: yup
+      .string()
+      .oneOf(
+        [
+          'AC',
+          'AL',
+          'AP',
+          'AM',
+          'BA',
+          'CE',
+          'DF',
+          'ES',
+          'GO',
+          'MA',
+          'MT',
+          'MS',
+          'MG',
+          'PA',
+          'PB',
+          'PR',
+          'PE',
+          'PI',
+          'RJ',
+          'RN',
+          'RS',
+          'RO',
+          'RR',
+          'SC',
+          'SP',
+          'SE',
+          'TO',
+        ],
+        'Estado inválido',
+      )
       .required('Estado é obrigatório'),
-    zip: yup.string().min(8, 'CEP precisa ter 8 dígitos').required('CEP é obrigatório'),
+    zip: yup
+      .string()
+      .min(8, 'CEP precisa ter 8 dígitos')
+      .required('CEP é obrigatório'),
   }),
 });
 
-export default function CompanyForm({ finishedCompanyCreation }: CompanyFormProps) {
+export default function CompanyForm({
+  finishedCompanyCreation,
+}: CompanyFormProps) {
   const toast = useToast();
-  const { state: { userId } } = useUser();
+  const {
+    state: { userId },
+  } = useUser();
   const [isRegistering, setIsRegistering] = useState(false);
 
   const {
@@ -73,11 +118,13 @@ export default function CompanyForm({ finishedCompanyCreation }: CompanyFormProp
     const companyData = {
       ...data,
       adminId: userId,
-    }
-    axiosInstance.post('/company', companyData)
+    };
+    axiosInstance
+      .post('/company', companyData)
       .then(() => {
         finishedCompanyCreation();
-      }).catch(() => {
+      })
+      .catch(() => {
         showRegistrationErrorToast();
         setIsRegistering(false);
       });
@@ -127,7 +174,11 @@ export default function CompanyForm({ finishedCompanyCreation }: CompanyFormProp
           <InputLeftElement>
             <BsBuildings />
           </InputLeftElement>
-          <Input {...register('name')} id="company-name" placeholder="Nome da empresa" />
+          <Input
+            {...register('name')}
+            id="company-name"
+            placeholder="Nome da empresa"
+          />
         </InputGroup>
         <FormHelperText>{errors.name?.message}</FormHelperText>
       </FormControl>
@@ -153,7 +204,12 @@ export default function CompanyForm({ finishedCompanyCreation }: CompanyFormProp
           <InputLeftElement>
             <EmailIcon />
           </InputLeftElement>
-          <Input {...register('email')} id="email" type="email" placeholder="Email" />
+          <Input
+            {...register('email')}
+            id="email"
+            type="email"
+            placeholder="Email"
+          />
         </InputGroup>
         <FormHelperText>Email oficial da empresa.</FormHelperText>
         <FormHelperText>{errors.email?.message}</FormHelperText>
@@ -172,18 +228,14 @@ export default function CompanyForm({ finishedCompanyCreation }: CompanyFormProp
       </FormControl>
 
       <Stack direction={'column'} mt="2%" spacing={'1.5'}>
-        <Text>
-          Localização da empresa
-        </Text>
+        <Text>Localização da empresa</Text>
         <FormControl isRequired mt="2%">
           <FormLabel htmlFor="zip" fontWeight={'normal'}>
             CEP
           </FormLabel>
           <InputGroup>
             <InputRightElement>
-              {isUpdatingAddress && (
-                <Spinner size="sm" />
-              )}
+              {isUpdatingAddress && <Spinner size="sm" />}
             </InputRightElement>
             <Input {...register('address.zip')} id="zip" placeholder="CEP" />
           </InputGroup>
@@ -194,7 +246,11 @@ export default function CompanyForm({ finishedCompanyCreation }: CompanyFormProp
           <FormLabel htmlFor="street" fontWeight={'normal'}>
             Rua
           </FormLabel>
-          <Input {...register('address.street')} id="street" placeholder="Rua" />
+          <Input
+            {...register('address.street')}
+            id="street"
+            placeholder="Rua"
+          />
           <FormHelperText>{errors.address?.street?.message}</FormHelperText>
         </FormControl>
 
@@ -202,7 +258,11 @@ export default function CompanyForm({ finishedCompanyCreation }: CompanyFormProp
           <FormLabel htmlFor="number" fontWeight={'normal'}>
             Número
           </FormLabel>
-          <Input {...register('address.number')} id="number" placeholder="Número" />
+          <Input
+            {...register('address.number')}
+            id="number"
+            placeholder="Número"
+          />
           <FormHelperText>{errors.address?.number?.message}</FormHelperText>
         </FormControl>
 
@@ -210,8 +270,14 @@ export default function CompanyForm({ finishedCompanyCreation }: CompanyFormProp
           <FormLabel htmlFor="neighborhood" fontWeight={'normal'}>
             Bairro
           </FormLabel>
-          <Input {...register('address.neighborhood')} id="neighborhood" placeholder="Bairro" />
-          <FormHelperText>{errors.address?.neighborhood?.message}</FormHelperText>
+          <Input
+            {...register('address.neighborhood')}
+            id="neighborhood"
+            placeholder="Bairro"
+          />
+          <FormHelperText>
+            {errors.address?.neighborhood?.message}
+          </FormHelperText>
         </FormControl>
 
         <FormControl isRequired mt="2%">
@@ -226,14 +292,18 @@ export default function CompanyForm({ finishedCompanyCreation }: CompanyFormProp
           <FormLabel htmlFor="state" fontWeight={'normal'}>
             Estado
           </FormLabel>
-          <Input {...register('address.state')} id="state" placeholder="Estado" />
+          <Input
+            {...register('address.state')}
+            id="state"
+            placeholder="Estado"
+          />
           <FormHelperText>{errors.address?.state?.message}</FormHelperText>
         </FormControl>
       </Stack>
 
       <Flex mt="10%" justify={'center'}>
         <Button
-          type='submit'
+          type="submit"
           w="100%"
           colorScheme={'green'}
           variant="solid"

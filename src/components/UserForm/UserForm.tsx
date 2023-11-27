@@ -1,4 +1,16 @@
 import { useCallback, useState } from 'react';
+
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useForm } from 'react-hook-form';
+import {
+  BsFillFileLock2Fill,
+  BsFillPersonBadgeFill,
+  BsFillPersonFill,
+  BsFillPersonVcardFill,
+} from 'react-icons/bs';
+import * as yup from 'yup';
+
+import { EmailIcon } from '@chakra-ui/icons';
 import {
   Heading,
   Flex,
@@ -14,33 +26,44 @@ import {
   Stack,
   useToast,
 } from '@chakra-ui/react';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
-import {
-  BsFillFileLock2Fill,
-  BsFillPersonBadgeFill,
-  BsFillPersonFill,
-  BsFillPersonVcardFill,
-} from 'react-icons/bs';
-import { EmailIcon } from '@chakra-ui/icons';
-import { UserFormData } from '@/components/UserForm/interfaces/user-form-data.interface';
-import axiosInstance from '@/services/axios/axios-instance';
-import { UserFormProps } from '@/components/UserForm/interfaces/user-form-props.interface';
-import { useUser } from '@/hooks/user/useUser';
+
 import { UserTypes } from '@/hooks/user/types/user-actions.types';
+import { useUser } from '@/hooks/user/useUser';
+import axiosInstance from '@/services/axios/axios-instance';
+
+import {
+  UserFormData,
+} from '@/components/UserForm/interfaces/user-form-data.interface';
+import {
+  UserFormProps,
+} from '@/components/UserForm/interfaces/user-form-props.interface';
+
 
 const schema = yup.object().shape({
-  username: yup.string().required('username é obrigatório').min(4, 'Precisa conter no mínimo 4 caracteres').max(20, 'Pode conter no máximo 20 caracteres'),
+  username:
+    yup
+    .string()
+    .required('username é obrigatório')
+    .min(4, 'Precisa conter no mínimo 4 caracteres')
+    .max(20, 'Pode conter no máximo 20 caracteres'),
   firstName: yup.string().required('Nome é obrigatório').min(2),
   lastName: yup.string().required('Sobrenome é obrigatório').min(2),
   email: yup.string().email('Email inválido').required('Email é obrigatório'),
   password: yup.string()
     .required('É necessário criar uma senha')
-    .min(8, 'A senha precisa ter no mínimo 8 caracteres').matches(/^(?=.*[A-Z])/, "Precisa conter uma letra maiúscula")
-    .matches(/^(?=.*[!@#\$%\^&\*])/, "Precisa conter um símbolo especial"),
-  passwordConfirmation: yup.string().oneOf([yup.ref('password'), undefined], 'Senhas devem ser iguais'),
-  userRole: yup.string().oneOf(['CompanyAdmin', 'Customer'], 'Role inválido').required('Role é obrigatório'),
+    .min(8, 'A senha precisa ter no mínimo 8 caracteres')
+    .matches(/^(?=.*[A-Z])/, 'Precisa conter uma letra maiúscula')
+    // eslint-disable-next-line no-useless-escape
+    .matches(/^(?=.*[!@#\$%\^&\*])/, 'Precisa conter um símbolo especial'),
+  passwordConfirmation:
+    yup
+    .string()
+    .oneOf([yup.ref('password'), undefined], 'Senhas devem ser iguais'),
+  userRole:
+    yup
+    .string()
+    .oneOf(['CompanyAdmin', 'Customer'], 'Role inválido')
+    .required('Role é obrigatório'),
 });
 
 export default function UserForm({ onRegistrationComplete }: UserFormProps) {
@@ -195,8 +218,17 @@ export default function UserForm({ onRegistrationComplete }: UserFormProps) {
       <Flex mt="2%">
         <RadioGroup defaultValue='Customer'>
           <Stack spacing={4} direction='row'>
-            <Radio {...register('userRole')} value='Customer'>Quero realizar agendamentos</Radio>
-            <Radio {...register('userRole')} value='CompanyAdmin'>Quero cadastrar minha barbearia</Radio>
+            <Radio
+              {...register('userRole')}
+              value='Customer'
+            >
+              Quero realizar agendamentos
+            </Radio>
+            <Radio
+              {...register('userRole')}
+              value='CompanyAdmin'>
+                Quero cadastrar minha barbearia
+              </Radio>
           </Stack>
         </RadioGroup>
       </Flex>

@@ -1,4 +1,5 @@
-import { User } from "@/hooks/user/interfaces/user-state.interface";
+/* eslint-disable no-unused-vars */
+import { User } from '@/hooks/user/interfaces/user-state.interface';
 
 export enum UserTypes {
   SET_USER = 'SET_USER',

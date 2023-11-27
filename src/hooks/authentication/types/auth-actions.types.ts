@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 export enum AuthTypes {
   LOGIN = 'LOGIN',
   LOGOUT = 'LOGOUT',

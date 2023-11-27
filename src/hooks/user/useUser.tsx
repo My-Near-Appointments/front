@@ -1,8 +1,13 @@
-import { UserContextData } from "@/hooks/user/interfaces/user-context-data.interface";
-import { UserProviderProps } from "@/hooks/user/interfaces/user-provider-props.interface";
-import { UserState } from "@/hooks/user/interfaces/user-state.interface";
-import { UserActions } from "@/hooks/user/types/user-actions.types";
-import { createContext, useContext, useReducer } from "react";
+import { createContext, useContext, useReducer } from 'react';
+
+import {
+  UserContextData,
+} from '@/hooks/user/interfaces/user-context-data.interface';
+import {
+  UserProviderProps,
+} from '@/hooks/user/interfaces/user-provider-props.interface';
+import { UserState } from '@/hooks/user/interfaces/user-state.interface';
+import { UserActions } from '@/hooks/user/types/user-actions.types';
 
 const userContext = createContext<UserContextData>({
   state: { user: null, userId: '' },
@@ -20,8 +25,7 @@ const userReducer = (state: UserState, action: UserActions): UserState => {
       return {
         ...state,
         userId: action.payload?.userId || '',
-
-      }
+      };
     default:
       return state;
   }

@@ -1,7 +1,9 @@
 'use client';
 
-import { AuthTypes } from '@/hooks/authentication/types/auth-actions.types';
-import { useAuthentication } from '@/hooks/authentication/useAuthentication';
+import { useCallback } from 'react';
+
+import { useRouter } from 'next/navigation';
+
 import {
   Box,
   Button,
@@ -12,8 +14,10 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react';
-import { useRouter } from 'next/navigation';
-import { useCallback } from 'react';
+
+import { AuthTypes } from '@/hooks/authentication/types/auth-actions.types';
+import { useAuthentication } from '@/hooks/authentication/useAuthentication';
+
 
 export default function Home() {
   const { dispatch } = useAuthentication();

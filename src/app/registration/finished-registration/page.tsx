@@ -1,8 +1,18 @@
 'use client';
 
-import { Box, Text, Stack, useColorModeValue, Heading, Button, Flex } from "@chakra-ui/react";
-import { useRouter } from "next/navigation";
-import { useCallback } from "react";
+import { useCallback } from 'react';
+
+import { useRouter } from 'next/navigation';
+
+import {
+  Box,
+  Text,
+  Stack,
+  useColorModeValue,
+  Heading,
+  Button,
+  Flex,
+} from '@chakra-ui/react';
 
 export default function FinishedRegistration() {
   const router = useRouter();
@@ -29,31 +39,30 @@ export default function FinishedRegistration() {
         py={{ base: 20, md: 36 }}
       >
         <Heading
-            fontWeight={600}
-            fontSize={{ base: 'xl', sm: 'xl', md: 'xl' }}
-            lineHeight={'110%'}
-          >
-            Cadastro realizado com sucesso! <br />
-            <Text as={'span'} color={'green.400'}>
-              Agora você pode fazer login na sua conta.
-            </Text>
+          fontWeight={600}
+          fontSize={{ base: 'xl', sm: 'xl', md: 'xl' }}
+          lineHeight={'110%'}
+        >
+          Cadastro realizado com sucesso! <br />
+          <Text as={'span'} color={'green.400'}>
+            Agora você pode fazer login na sua conta.
+          </Text>
         </Heading>
-          <Flex mt={4} justifyContent={'center'}>
-            <Button
-              colorScheme={'green'}
-              bg={'green.400'}
-              rounded={'full'}
-              px={6}
-              _hover={{
-                bg: 'green.500',
-              }}
-              size={'md'}
-              onClick={navigateToInitialPage}
-            >
-              Ir Para página inicial
-            </Button>
-
-          </Flex>
+        <Flex mt={4} justifyContent={'center'}>
+          <Button
+            colorScheme={'green'}
+            bg={'green.400'}
+            rounded={'full'}
+            px={6}
+            _hover={{
+              bg: 'green.500',
+            }}
+            size={'md'}
+            onClick={navigateToInitialPage}
+          >
+            Ir Para página inicial
+          </Button>
+        </Flex>
       </Stack>
     </Box>
   );

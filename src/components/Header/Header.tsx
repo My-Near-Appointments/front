@@ -1,5 +1,16 @@
 'use client';
 
+import { useCallback, useMemo } from 'react';
+
+import { useRouter } from 'next/navigation';
+
+import {
+  HamburgerIcon,
+  CloseIcon,
+  MoonIcon,
+  SunIcon,
+  CalendarIcon,
+} from '@chakra-ui/icons';
 import {
   Avatar,
   Box,
@@ -19,17 +30,10 @@ import {
   useColorMode,
   Link,
 } from '@chakra-ui/react';
-import {
-  HamburgerIcon,
-  CloseIcon,
-  MoonIcon,
-  SunIcon,
-  CalendarIcon,
-} from '@chakra-ui/icons';
-import { useCallback, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuthentication } from '@/hooks/authentication/useAuthentication';
+
 import { AuthTypes } from '@/hooks/authentication/types/auth-actions.types';
+import { useAuthentication } from '@/hooks/authentication/useAuthentication';
+
 import NavLink from '@/components/NavLink/NavLink';
 
 const Links = ['Agendamentos', 'Histórico', 'Empregados'];
@@ -116,6 +120,7 @@ export default function Header() {
                       size={'sm'}
                       name="John Doe"
                       src={
+                        // eslint-disable-next-line max-len
                         'https://images.unsplash.com/photo-1493666438817-866a91353ca9?ixlib=rb-0.3.5&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&s=b616b2c5b373a80ffc9636ba24f7a4a9'
                       }
                     />

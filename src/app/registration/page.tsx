@@ -1,15 +1,14 @@
 'use client';
 
-import {
-  Box,
-  Flex,
-  useColorModeValue,
-  useToast,
-} from '@chakra-ui/react';
 import { useCallback, useState } from 'react';
+
+import { useRouter } from 'next/navigation';
+
+import { Box, Flex, useColorModeValue, useToast } from '@chakra-ui/react';
+
 import CompanyForm from '@/components/CompanyForm/CompanyForm';
 import UserForm from '@/components/UserForm/UserForm';
-import { useRouter } from 'next/navigation';
+
 
 export default function Registration() {
   const [step, setStep] = useState(1);
@@ -29,15 +28,18 @@ export default function Registration() {
     });
   }, [toast]);
 
-  const handleUserCreated = useCallback((isCompany: boolean) => {
-    if (!isCompany) {
-      router.push('/registration/finished-registration');
-      return;
-    }
+  const handleUserCreated = useCallback(
+    (isCompany: boolean) => {
+      if (!isCompany) {
+        router.push('/registration/finished-registration');
+        return;
+      }
 
-    showCompanyToast();
-    changeStep();
-  }, [changeStep, router, showCompanyToast]);
+      showCompanyToast();
+      changeStep();
+    },
+    [changeStep, router, showCompanyToast],
+  );
 
   const handleCompanyCreated = useCallback(() => {
     router.push('/registration/finished-registration');
@@ -55,7 +57,11 @@ export default function Registration() {
         p={6}
         m="10px auto"
       >
-        {step === 1 ? <UserForm onRegistrationComplete={handleUserCreated} /> : <CompanyForm finishedCompanyCreation={handleCompanyCreated} />}
+        {step === 1 ? (
+          <UserForm onRegistrationComplete={handleUserCreated} />
+        ) : (
+          <CompanyForm finishedCompanyCreation={handleCompanyCreated} />
+        )}
       </Box>
     </Flex>
   );
