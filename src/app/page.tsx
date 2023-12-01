@@ -15,18 +15,12 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react';
 
-import { AuthTypes } from '@/hooks/authentication/types/auth-actions.types';
-import { useAuthentication } from '@/hooks/authentication/useAuthentication';
-
-
 export default function Home() {
-  const { dispatch } = useAuthentication();
   const router = useRouter();
 
   const handleLogin = useCallback(() => {
-    dispatch({ type: AuthTypes.LOGIN });
-    router.push('/dashboard');
-  }, [router, dispatch]);
+    router.push('/login');
+  }, [router]);
 
   const goToRegistration = useCallback(() => {
     router.push('/registration');
@@ -75,7 +69,7 @@ export default function Home() {
               }}
               onClick={goToRegistration}
             >
-              Começar agora!
+              Realizar cadastro!
             </Button>
             <Button
               variant={'link'}

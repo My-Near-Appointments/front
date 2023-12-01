@@ -4,13 +4,7 @@ import { useCallback, useMemo } from 'react';
 
 import { useRouter } from 'next/navigation';
 
-import {
-  HamburgerIcon,
-  CloseIcon,
-  MoonIcon,
-  SunIcon,
-  CalendarIcon,
-} from '@chakra-ui/icons';
+import { HamburgerIcon, CloseIcon, MoonIcon, SunIcon } from '@chakra-ui/icons';
 import {
   Avatar,
   Box,
@@ -29,6 +23,7 @@ import {
   Text,
   useColorMode,
   Link,
+  Image,
 } from '@chakra-ui/react';
 
 import { AuthTypes } from '@/hooks/authentication/types/auth-actions.types';
@@ -81,9 +76,18 @@ export default function Header() {
           />
           <HStack spacing={8} alignItems={'center'}>
             <Text as={'b'} fontFamily={'heading'}>
-              <Link href={getLinkForCompanyHeader}>
+              <Link
+                href={getLinkForCompanyHeader}
+                _hover={{
+                  textDecoration: 'none',
+                }}
+              >
                 <Stack direction={'row'} justify={'center'} align={'center'}>
-                  <CalendarIcon color={'green.400'} />
+                  <Image
+                    src="/logo.png"
+                    alt="Company Logo"
+                    boxSize={'12'}
+                  />
                   <Box>My Near Appointments</Box>
                 </Stack>
               </Link>

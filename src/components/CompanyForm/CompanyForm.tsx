@@ -107,6 +107,7 @@ export default function CompanyForm({
     watch,
   } = useForm({
     resolver: yupResolver(schema),
+    mode: 'onChange',
   });
 
   const zip = watch('address.zip');
