@@ -2,7 +2,6 @@
 export enum AuthTypes {
   LOGIN = 'LOGIN',
   LOGOUT = 'LOGOUT',
-  SET_TOKEN = 'SET_TOKEN',
 }
 
 export interface AuthPayload {

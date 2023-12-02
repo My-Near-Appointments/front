@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect } from 'react';
+
 import Link from 'next/link';
 
 import {
@@ -12,8 +14,24 @@ import {
   Button,
 } from '@chakra-ui/react';
 
+import { UserTypes } from '@/hooks/user/types/user-actions.types';
+import { useUser } from '@/hooks/user/useUser';
+import axiosInstance from '@/services/axios/axios-instance';
 
 export default function Dashboard() {
+  const { dispatch } = useUser();
+
+  useEffect(() => {
+    axiosInstance.get('/user/me').then((res) => {
+      dispatch({
+        type: UserTypes.SET_USER,
+        payload: {
+          user: res.data,
+        },
+      });
+    });
+  }, [dispatch]);
+
   return (
     <Flex
       w="100%"

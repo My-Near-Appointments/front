@@ -9,6 +9,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <title>My Near Appointments</title>
+      </head>
       <body suppressHydrationWarning={true}>
         <Providers>
           <Header />

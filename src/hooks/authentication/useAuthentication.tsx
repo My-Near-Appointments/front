@@ -6,15 +6,19 @@ import {
   AuthProviderProps
 } from '@/hooks/authentication/interfaces/auth-provider-props.interface';
 import {
-  AuthState
+  AuthState,
 } from '@/hooks/authentication/interfaces/auth-state.interface';
 import {
-  AuthenticationContextData
-// eslint-disable-next-line max-len
+  AuthenticationContextData,
+  // eslint-disable-next-line max-len
 } from '@/hooks/authentication/interfaces/authentication-context-data.interface';
 import {
-  AuthActions, AuthTypes
+  AuthActions,
+  AuthTypes,
 } from '@/hooks/authentication/types/auth-actions.types';
+import {
+  LocalStorageService,
+} from '@/services/local-storage/local-storage.service';
 
 const authContext = createContext<AuthenticationContextData>({
   state: { isAuthenticated: false, token: '' },
@@ -22,31 +26,36 @@ const authContext = createContext<AuthenticationContextData>({
 });
 
 const authReducer = (state: AuthState, action: AuthActions): AuthState => {
+  const token = action.payload?.token || '';
+
   switch (action.type) {
     case AuthTypes.LOGIN:
+      LocalStorageService.set<string>('authToken', token);
+
       return {
         ...state,
         isAuthenticated: true,
+        token: action.payload?.token || '',
       };
     case AuthTypes.LOGOUT:
+      LocalStorageService.remove('authToken');
+
       return {
         ...state,
         isAuthenticated: false,
-      };
-    case AuthTypes.SET_TOKEN:
-      return {
-        ...state,
-        token: action.payload?.token || '',
+        token: '',
       };
     default:
       return state;
   }
 };
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [state, dispatch] = useReducer(authReducer, {
-    isAuthenticated: false,
-    token: '',
-  });
+  const initialAuthState = {
+    isAuthenticated: !!LocalStorageService.get('authToken'),
+    token: LocalStorageService.get('authToken') || '',
+  };
+
+  const [state, dispatch] = useReducer(authReducer, initialAuthState);
   return (
     <authContext.Provider value={{ state, dispatch }}>
       {children}

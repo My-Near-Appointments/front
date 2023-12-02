@@ -17,6 +17,8 @@ import {
   useToast,
 } from '@chakra-ui/react';
 
+import { AuthTypes } from '@/hooks/authentication/types/auth-actions.types';
+import { useAuthentication } from '@/hooks/authentication/useAuthentication';
 import axiosInstance from '@/services/axios/axios-instance';
 
 interface IFormInput {
@@ -31,6 +33,7 @@ const schema = yup.object().shape({
 
 export default function LoginForm() {
   const [isDoingLogin, setIsDoingLogin] = useState(false);
+  const { dispatch } = useAuthentication();
 
   const toast = useToast();
   const {
@@ -49,7 +52,7 @@ export default function LoginForm() {
       .post('/auth/login', data)
       .then((response) => {
         setIsDoingLogin(false);
-        console.log(response);
+        onLoginSuccess(response.data.access_token);
       })
       .catch(() => {
         setIsDoingLogin(false);
@@ -65,6 +68,17 @@ export default function LoginForm() {
       isClosable: false,
     });
   }, [toast]);
+
+  const onLoginSuccess = (token: string) => {
+    dispatch({
+      type: AuthTypes.LOGIN,
+      payload: {
+        token: token,
+      },
+    });
+
+    window.location.href = '/dashboard';
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
