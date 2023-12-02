@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo } from 'react';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import { HamburgerIcon, CloseIcon, MoonIcon, SunIcon } from '@chakra-ui/icons';
@@ -22,7 +23,6 @@ import {
   useDisclosure,
   Text,
   useColorMode,
-  Link,
   Image,
 } from '@chakra-ui/react';
 
@@ -46,7 +46,7 @@ export default function Header() {
   const router = useRouter();
 
   const handleNavigateToMyProfile = useCallback(() => {
-    router.push('/dashboard/my-profile');
+    router.push('/my-profile');
   }, [router]);
 
   const logout = useCallback(() => {
@@ -78,11 +78,7 @@ export default function Header() {
           />
           <HStack spacing={8} alignItems={'center'}>
             <Text as={'b'} fontFamily={'heading'}>
-              <Link
-                href={getLinkForCompanyHeader}
-                _hover={{
-                  textDecoration: 'none',
-                }}
+              <Link href={getLinkForCompanyHeader}
               >
                 <Stack direction={'row'} justify={'center'} align={'center'}>
                   <Image

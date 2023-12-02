@@ -68,7 +68,7 @@ export default function Dashboard() {
           variant={'solid'}
           rounded={'full'}
         >
-          <Link href="/dashboard/appointments">Iniciar</Link>
+          <Link href="/appointments">Iniciar</Link>
         </Button>
       </Stack>
     </Flex>
