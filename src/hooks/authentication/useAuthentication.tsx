@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useReducer } from 'react';
+import { createContext, useContext, useLayoutEffect, useReducer } from 'react';
 
 import {
   AuthProviderProps
@@ -51,9 +51,17 @@ const authReducer = (state: AuthState, action: AuthActions): AuthState => {
 };
 export function AuthProvider({ children }: AuthProviderProps) {
   const initialAuthState = {
-    isAuthenticated: !!LocalStorageService.get('authToken'),
-    token: LocalStorageService.get('authToken') || '',
+    isAuthenticated: false,
+    token: '',
   };
+
+  useLayoutEffect(() => {
+    const token = LocalStorageService.get('authToken');
+
+    if (token) {
+      dispatch({ type: AuthTypes.LOGIN, payload: { token } });
+    }
+  }, []);
 
   const [state, dispatch] = useReducer(authReducer, initialAuthState);
   return (
