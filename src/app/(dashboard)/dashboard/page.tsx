@@ -14,23 +14,17 @@ import {
   Button,
 } from '@chakra-ui/react';
 
-import { UserTypes } from '@/hooks/user/types/user-actions.types';
 import { useUser } from '@/hooks/user/useUser';
-import axiosInstance from '@/services/axios/axios-instance';
+import { useUserMe } from '@/services/user-me/useUserMe';
 
 export default function Dashboard() {
-  const { dispatch } = useUser();
+  const { getUserMe } = useUserMe();
+  const { isCompanyAdmin } = useUser();
 
   useEffect(() => {
-    axiosInstance.get('/user/me').then((res) => {
-      dispatch({
-        type: UserTypes.SET_USER,
-        payload: {
-          user: res.data,
-        },
-      });
-    });
-  }, [dispatch]);
+    getUserMe();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Flex
@@ -55,11 +49,15 @@ export default function Dashboard() {
           fontSize={'3xl'}
           color={useColorModeValue('gray.800', 'gray.200')}
         >
-          Organize sua barbearia
+          {isCompanyAdmin
+            ? 'Organize sua barbearia'
+            : 'Realize agendamentos com sua barbearia favorita'}
         </Heading>
 
         <Text fontSize={'md'} color={'gray.500'}>
-          Comece adicionando seus prestadores de serviço e agendamentos.
+          {isCompanyAdmin
+            ? 'Organize seus serviços e agendamentos'
+            : 'Realize agendamentos com seus prestadores de serviço'}
         </Text>
 
         <Button
