@@ -44,6 +44,7 @@ export default function UpdateProfileForm() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isValid },
   } = useForm({
     resolver: yupResolver(updateUserSchema),
@@ -60,6 +61,11 @@ export default function UpdateProfileForm() {
       await updateUser(user.id, userData);
     }
   };
+
+  useEffect(() => {
+    setValue('firstName', user?.name || '')
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleUpdateSuccess = useCallback(() => {
     toast({

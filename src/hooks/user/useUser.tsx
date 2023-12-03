@@ -6,12 +6,16 @@ import {
 import {
   UserProviderProps,
 } from '@/hooks/user/interfaces/user-provider-props.interface';
-import { UserState } from '@/hooks/user/interfaces/user-state.interface';
+import {
+  UserRole,
+  UserState,
+} from '@/hooks/user/interfaces/user-state.interface';
 import { UserActions } from '@/hooks/user/types/user-actions.types';
 
 const userContext = createContext<UserContextData>({
   state: { user: null, userId: '' },
   dispatch: () => {},
+  isCompanyAdmin: false,
 });
 
 const userReducer = (state: UserState, action: UserActions): UserState => {
@@ -31,9 +35,13 @@ const userReducer = (state: UserState, action: UserActions): UserState => {
   }
 };
 export function UserProvider({ children }: UserProviderProps) {
+
   const [state, dispatch] = useReducer(userReducer, { user: null, userId: '' });
+
+  const isCompanyAdmin = state.user?.role === UserRole.COMPANY_ADMIN;
+
   return (
-    <userContext.Provider value={{ state, dispatch }}>
+    <userContext.Provider value={{ state, dispatch, isCompanyAdmin }}>
       {children}
     </userContext.Provider>
   );

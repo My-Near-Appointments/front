@@ -2,7 +2,7 @@
 
 import { Box, Flex, useColorModeValue } from '@chakra-ui/react';
 
-export default function Appointments() {
+export default function MyCompany() {
   return (
     <Flex bg={useColorModeValue('gray.50', 'gray.800')}>
       <Box

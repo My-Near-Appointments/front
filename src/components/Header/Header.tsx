@@ -3,6 +3,7 @@
 import { useCallback, useMemo } from 'react';
 
 import Link from 'next/link';
+import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import { HamburgerIcon, CloseIcon, MoonIcon, SunIcon } from '@chakra-ui/icons';
@@ -30,12 +31,14 @@ import { AuthTypes } from '@/hooks/authentication/types/auth-actions.types';
 import { useAuthentication } from '@/hooks/authentication/useAuthentication';
 import { useUser } from '@/hooks/user/useUser';
 
+import { getMenuLinks } from '@/components/Header/utils/menu-links';
 import NavLink from '@/components/NavLink/NavLink';
 
-const Links = ['Agendamentos', 'Histórico', 'Empregados'];
-
 export default function Header() {
-  const { state: { user } } = useUser();
+  const {
+    state: { user },
+    isCompanyAdmin,
+  } = useUser();
   const {
     state: { isAuthenticated },
     dispatch,
@@ -45,9 +48,7 @@ export default function Header() {
   const { colorMode, toggleColorMode } = useColorMode();
   const router = useRouter();
 
-  const handleNavigateToMyProfile = useCallback(() => {
-    router.push('/my-profile');
-  }, [router]);
+  const Links = getMenuLinks(isCompanyAdmin);
 
   const logout = useCallback(() => {
     dispatch({ type: AuthTypes.LOGOUT });
@@ -78,14 +79,9 @@ export default function Header() {
           />
           <HStack spacing={8} alignItems={'center'}>
             <Text as={'b'} fontFamily={'heading'}>
-              <Link href={getLinkForCompanyHeader}
-              >
+              <Link href={getLinkForCompanyHeader}>
                 <Stack direction={'row'} justify={'center'} align={'center'}>
-                  <Image
-                    src="/logo.png"
-                    alt="Company Logo"
-                    boxSize={'12'}
-                  />
+                  <Image src="/logo.png" alt="Company Logo" boxSize={'12'} />
                   <Box>My Near Appointments</Box>
                 </Stack>
               </Link>
@@ -96,8 +92,10 @@ export default function Header() {
                 spacing={4}
                 display={{ base: 'none', md: 'flex' }}
               >
-                {Links.map((link) => (
-                  <NavLink key={link}>{link}</NavLink>
+                {Links.map((item) => (
+                  <NavLink key={item.link} href={item.link}>
+                    {item.name}
+                  </NavLink>
                 ))}
               </HStack>
             ) : (
@@ -118,15 +116,19 @@ export default function Header() {
                     cursor={'pointer'}
                     minW={0}
                   >
-                    <Avatar
-                      size={'sm'}
-                      name={user?.username}
-                    />
+                    <Avatar size={'sm'} name={user?.username} />
                   </MenuButton>
                   <MenuList>
-                    <MenuItem onClick={handleNavigateToMyProfile}>
+                    <MenuItem as={NextLink} href='/my-profile'>
                       Meu Perfil
                     </MenuItem>
+                    {isCompanyAdmin && (
+                      <>
+                        <MenuItem as={NextLink} href='my-company'>
+                          Minha Barbearia
+                        </MenuItem>
+                      </>
+                    )}
                     <MenuDivider />
                     <MenuItem onClick={logout}>Sair</MenuItem>
                   </MenuList>
@@ -141,8 +143,10 @@ export default function Header() {
         {isOpen ? (
           <Box pb={4} display={{ md: 'none' }}>
             <Stack as={'nav'} spacing={4}>
-              {Links.map((link) => (
-                <NavLink key={link}>{link}</NavLink>
+              {Links.map((item) => (
+                <NavLink key={item.link} href={item.link}>
+                  {item.name}
+                </NavLink>
               ))}
             </Stack>
           </Box>

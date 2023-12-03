@@ -1,15 +1,18 @@
+import NextLink from 'next/link';
+
 import { Box, useColorModeValue } from '@chakra-ui/react';
 
-interface Props {
+interface NavLinkProps {
   children: React.ReactNode;
+  href: string;
 }
 
-export default function NavLink(props: Props) {
-  const { children } = props;
+export default function NavLink(props: NavLinkProps) {
+  const { children, href } = props;
 
   return (
     <Box
-      as="a"
+      as={NextLink}
       px={2}
       py={1}
       rounded={'md'}
@@ -17,7 +20,7 @@ export default function NavLink(props: Props) {
         textDecoration: 'none',
         bg: useColorModeValue('gray.200', 'gray.700'),
       }}
-      href={'#'}
+      href={href}
     >
       {children}
     </Box>

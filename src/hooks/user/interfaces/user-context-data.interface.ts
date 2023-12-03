@@ -6,4 +6,5 @@ import { UserActions } from '@/hooks/user/types/user-actions.types';
 export interface UserContextData {
   state: UserState;
   dispatch: Dispatch<UserActions>;
+  isCompanyAdmin: boolean;
 }
