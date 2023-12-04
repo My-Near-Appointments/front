@@ -1,7 +1,7 @@
 'use client';
 
 import
-DashboardLoading
+  DashboardLoading
 from '@/components/Loading/DashboardLoading/dashboard-loading';
 
 export default function Loading() {

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 export enum UserRole {
   ADMIN = 'Admin',
   COMPANY_ADMIN = 'CompanyAdmin',

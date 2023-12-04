@@ -2,6 +2,10 @@
 
 import { Box, Flex, useColorModeValue } from '@chakra-ui/react';
 
+import
+  UpdateCompanyForm
+from '@/components/UpdateCompanyForm/UpdateCompanyForm';
+
 export default function MyCompany() {
   return (
     <Flex bg={useColorModeValue('gray.50', 'gray.800')}>
@@ -14,7 +18,9 @@ export default function MyCompany() {
         width="100%"
         p={6}
         m="10px auto"
-      ></Box>
+      >
+        <UpdateCompanyForm />
+      </Box>
     </Flex>
   );
 }

@@ -14,15 +14,22 @@ import {
   Button,
 } from '@chakra-ui/react';
 
+import { useCompany } from '@/hooks/company/useCompany';
+import { UserRole } from '@/hooks/user/interfaces/user-state.interface';
 import { useUser } from '@/hooks/user/useUser';
 import { useUserMe } from '@/services/user-me/useUserMe';
 
 export default function Dashboard() {
   const { getUserMe } = useUserMe();
-  const { isCompanyAdmin } = useUser();
+  const { getCompany } = useCompany();
+  const { isCompanyAdmin, state: { user } } = useUser();
 
   useEffect(() => {
     getUserMe();
+
+    if (user?.id && user.role === UserRole.COMPANY_ADMIN) {
+      getCompany(user?.id);
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
