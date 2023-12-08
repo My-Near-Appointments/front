@@ -26,12 +26,15 @@ export default function Dashboard() {
 
   useEffect(() => {
     getUserMe();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
+  useEffect(() => {
     if (user?.id && user.role === UserRole.COMPANY_ADMIN) {
       getCompany(user?.id);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user?.id]);
 
   return (
     <Flex

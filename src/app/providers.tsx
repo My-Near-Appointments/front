@@ -5,6 +5,7 @@ import { ChakraProvider, extendTheme } from '@chakra-ui/react';
 
 import { AuthProvider } from '@/hooks/authentication/useAuthentication';
 import { CompanyProvider } from '@/hooks/company/useCompany';
+import { EmployeeProvider } from '@/hooks/employee/useEmployee';
 import { UserProvider } from '@/hooks/user/useUser';
 
 const theme = extendTheme({
@@ -14,16 +15,17 @@ const theme = extendTheme({
   },
 });
 
+const providers = [
+  { provider: CacheProvider, props: {} },
+  { provider: ChakraProvider, props: { theme } },
+  { provider: UserProvider, props: {} },
+  { provider: CompanyProvider, props: {} },
+  { provider: EmployeeProvider, props: {} },
+  { provider: AuthProvider, props: {} },
+];
+
 export function Providers({ children }: { children: React.ReactNode }) {
-  return (
-    <CacheProvider>
-      <ChakraProvider theme={theme}>
-        <UserProvider>
-        <CompanyProvider>
-          <AuthProvider>{children}</AuthProvider>
-        </CompanyProvider>
-        </UserProvider>
-      </ChakraProvider>
-    </CacheProvider>
-  );
+  return providers.reduce((prev, { provider: Provider, props }) => {
+    return <Provider {...props}>{prev}</Provider>;
+  }, children);
 }
