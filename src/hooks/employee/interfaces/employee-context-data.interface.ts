@@ -3,6 +3,7 @@ import { Dispatch } from 'react';
 
 import {
   CreateEmployee,
+  Employee,
   EmployeeState,
   UpdateEmployee,
 } from '@/hooks/employee/interfaces/employee-state.interface';
@@ -13,6 +14,7 @@ export interface EmployeeContextData {
   dispatch: Dispatch<EmployeeActions>;
   createEmployee: (employee: CreateEmployee) => Promise<void>;
   getEmployees: (userId: string) => Promise<void>;
+  getEmployeeById: (id: string) => Promise<Employee | undefined>;
   updateEmployee: (id: string, employee: UpdateEmployee) => Promise<void>;
   deactivateEmployee: (employeeId: string) => Promise<void>;
   activateEmployee: (employeeId: string) => Promise<void>;

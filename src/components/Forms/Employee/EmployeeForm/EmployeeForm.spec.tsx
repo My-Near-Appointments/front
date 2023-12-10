@@ -1,10 +1,29 @@
 import { render, screen, fireEvent, act } from '@testing-library/react';
 
+import { Employee } from '@/hooks/employee/interfaces/employee-state.interface';
+
 import
   EmployeeForm
 from '@/components/Forms/Employee/EmployeeForm/EmployeeForm';
 
+jest.mock('@/hooks/employee/useEmployee', () => {
+  const mockedEmployee: Employee = {
+    active: true,
+    name: 'John Doe',
+    photoLink: 'https://example.com',
+    id: '1',
+  };
+
+  const getEmployeeById = jest.fn().mockResolvedValueOnce(mockedEmployee);
+  return {
+    useEmployee: () => ({
+      state: { employees: [mockedEmployee] },
+      getEmployeeById,
+    }),
+  };
+});
 describe('EmployeeForm', () => {
+
   it('should render EmployeeForm unchanged', () => {
     const closeCallback = jest.fn();
     const onFormSubmit = jest.fn();
@@ -154,4 +173,31 @@ describe('EmployeeForm', () => {
       expect(mockOnFormValidityChange).toHaveBeenCalledWith(true);
     },
   );
+
+    it(
+      // eslint-disable-next-line max-len
+      'should open the form with employee data if the employeeId is defined and employee is found on state',
+    async () => {
+  
+      const closeCallback = jest.fn();
+      const onFormSubmit = jest.fn();
+      const onFormValidityChange = jest.fn();
+    
+      await act(async () => {
+        render(
+          <EmployeeForm
+            closeCallback={closeCallback}
+            onFormSubmit={onFormSubmit}
+            onFormValidityChange={onFormValidityChange}
+            employeeId="1"
+          />
+        );
+      });
+
+      const input = screen.getByLabelText('Nome');
+      const avatarInput = screen.getByLabelText('Avatar URL');
+
+      expect(input).toHaveValue('John Doe');
+      expect(avatarInput).toHaveValue('https://example.com');
+    });
 });

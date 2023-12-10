@@ -7,5 +7,6 @@ import {
 export interface EmployeeFormProps {
   closeCallback: () => void;
   onFormSubmit: (data: EmployeeFormData) => void;
+  employeeId?: string;
   onFormValidityChange(isValid: boolean): void;
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import {
   Box,
@@ -11,14 +11,29 @@ import {
 } from '@chakra-ui/react';
 
 import { useCompany } from '@/hooks/company/useCompany';
+import { Employee } from '@/hooks/employee/interfaces/employee-state.interface';
 import { useEmployee } from '@/hooks/employee/useEmployee';
 
 import EmployeeTable from '@/components/EmployeeTable/EmployeeTable';
 import
   CreateEmployeeModal
-  from '@/components/Modals/CreateEmployeeModal/CreateEmployeeModal';
+from '@/components/Modals/CreateEmployeeModal/CreateEmployeeModal';
+import
+  UpdateEmployeeModal
+from '@/components/Modals/UpdateEmployeeModal/UpdateEmployeeModal';
 export default function Employees() {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [currentEmployee, setCurrentEmployee] = useState<Employee>();
+  const {
+    isOpen: isCreateOpen,
+    onOpen: onCreateOpen,
+    onClose: onCreateClose,
+  } = useDisclosure();
+
+  const {
+    isOpen: isUpdateOpen,
+    onOpen: onUpdateOpen,
+    onClose: onUpdateClose,
+  } = useDisclosure();
 
   const {
     state: { company },
@@ -52,6 +67,12 @@ export default function Employees() {
     [deleteEmployee],
   );
 
+  const updateEmployeeHandler = useCallback((employee: Employee) => {
+    setCurrentEmployee(employee);
+
+    onUpdateOpen();
+  }, [onUpdateOpen]);
+
   useEffect(() => {
     if (company?.id) {
       getEmployees(company?.id);
@@ -72,19 +93,23 @@ export default function Employees() {
           p={6}
           m="10px auto"
         >
-          <Button mb={4} onClick={onOpen}>Criar empregado</Button>
+          <Button mb={4} onClick={onCreateOpen}>
+            Criar empregado
+          </Button>
           <EmployeeTable
             employees={employees}
             activateEmployee={activateEmployeeHandler}
             deactivateEmployee={deactivateEmployeeHandler}
             deleteEmployee={deleteEmployeeHandler}
-            updateEmployee={() => {}}
+            updateEmployee={updateEmployeeHandler}
           />
         </Box>
       </Flex>
-      <CreateEmployeeModal
-        isOpen={isOpen}
-        onClose={onClose}
+      <CreateEmployeeModal isOpen={isCreateOpen} onClose={onCreateClose} />
+      <UpdateEmployeeModal
+        employee={currentEmployee as Employee}
+        isOpen={isUpdateOpen}
+        onClose={onUpdateClose}
       />
     </>
   );

@@ -31,7 +31,7 @@ import { Employee } from '@/hooks/employee/interfaces/employee-state.interface';
 
 interface EmployeeTableProps {
   employees: Employee[];
-  updateEmployee: (id: string, data: Employee) => void;
+  updateEmployee: (data: Employee) => void;
   activateEmployee: (id: string) => void;
   deactivateEmployee: (id: string) => void;
   deleteEmployee: (id: string) => void;
@@ -42,6 +42,7 @@ export default function EmployeeTable({
   activateEmployee,
   deactivateEmployee,
   deleteEmployee,
+  updateEmployee,
 }: EmployeeTableProps) {
   return (
     <TableContainer>
@@ -99,7 +100,12 @@ export default function EmployeeTable({
                         Habilitar
                       </MenuItem>
                     )}
-                    <MenuItem icon={<EditIcon />}>Editar</MenuItem>
+                    <MenuItem
+                      icon={<EditIcon />}
+                      onClick={() => updateEmployee(employee)}
+                    >
+                      Editar
+                    </MenuItem>
                     <MenuItem icon={<CalendarIcon />}>Horários</MenuItem>
                     <MenuItem
                       icon={<DeleteIcon />}

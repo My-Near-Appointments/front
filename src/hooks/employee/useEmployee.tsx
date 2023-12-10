@@ -33,6 +33,7 @@ const employeeContext = createContext<EmployeeContextData>({
   isUpdatingEmployee: false,
   createEmployee: async (data: CreateEmployee) => {},
   getEmployees: async (companyId: string) => {},
+  getEmployeeById: async (id: string) => Promise.resolve(undefined),
 });
 
 const employeeReducer = (
@@ -180,6 +181,12 @@ export function EmployeeProvider({ children }: EmployeeProviderProps) {
     }
   };
 
+  const getEmployeeById = async (id: string) => {
+    const employee = state.employees.find((employee) => employee.id === id);
+
+    return employee;
+  }
+
   return (
     <employeeContext.Provider
       value={{
@@ -188,6 +195,7 @@ export function EmployeeProvider({ children }: EmployeeProviderProps) {
         isUpdatingEmployee,
         createEmployee,
         getEmployees,
+        getEmployeeById,
         updateEmployee,
         deactivateEmployee,
         activateEmployee,

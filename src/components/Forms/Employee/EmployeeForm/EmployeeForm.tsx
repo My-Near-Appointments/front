@@ -1,4 +1,4 @@
-import { forwardRef, useEffect } from 'react';
+import { forwardRef, useCallback, useEffect } from 'react';
 
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
@@ -11,6 +11,8 @@ import {
   FormErrorMessage,
 } from '@chakra-ui/react';
 
+import { Employee } from '@/hooks/employee/interfaces/employee-state.interface';
+import { useEmployee } from '@/hooks/employee/useEmployee';
 import {
   useCreateEmployeeSchema,
 } from '@/hooks/validations/create-employee/useCreateEmployeeSchema';
@@ -26,15 +28,22 @@ import {
 
 export default forwardRef<HTMLButtonElement, EmployeeFormProps>(
   function EmployeeForm(
-    { closeCallback, onFormSubmit, onFormValidityChange }: EmployeeFormProps,
+    {
+      closeCallback,
+      onFormSubmit,
+      onFormValidityChange,
+      employeeId,
+    }: EmployeeFormProps,
     ref,
   ) {
     const schema = useCreateEmployeeSchema();
+    const { getEmployeeById } = useEmployee();
 
     const {
       register,
       handleSubmit,
       reset,
+      setValue,
       formState: { errors, isValid },
     } = useForm({
       resolver: yupResolver(schema),
@@ -45,6 +54,25 @@ export default forwardRef<HTMLButtonElement, EmployeeFormProps>(
     useEffect(() => {
       onFormValidityChange(isValid);
     }, [isValid, onFormValidityChange, reset]);
+
+    const updateEmployeeForm = useCallback((employee: Employee) => {
+      setValue('name', employee.name);
+      setValue('photoLink', employee.photoLink);
+    }, [setValue]);
+
+    useEffect(() => {
+      async function getEmployee() {
+        if (employeeId) {
+          const employee = await getEmployeeById(employeeId);
+
+          if (employee) {
+            updateEmployeeForm(employee);
+          }
+        }
+      }
+
+      getEmployee();
+    }, [employeeId, getEmployeeById, updateEmployeeForm]);
 
     const onSubmit = async (data: EmployeeFormData) => {
       reset();
