@@ -3,8 +3,8 @@
 import { Box, Flex, useColorModeValue } from '@chakra-ui/react';
 
 import
-UpdateProfileForm
-from '@/components/UpdateProfileForm/UpdateProfileForm';
+  UpdateProfileForm
+from '@/components/Forms/UpdateProfileForm/UpdateProfileForm';
 
 export default function MyProfile() {
   return (

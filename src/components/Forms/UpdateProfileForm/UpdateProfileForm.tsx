@@ -30,9 +30,10 @@ import {
 import { useUpdateUser } from '@/services/user-update/useUpdateUser';
 
 import {
-  UpdateProfileFormData
+  UpdateProfileFormData,
 // eslint-disable-next-line max-len
-} from '@/components/UpdateProfileForm/interfaces/update-profile-form-data.interface';
+} from '@/components/Forms/UpdateProfileForm/interfaces/update-profile-form-data.interface';
+
 
 export default function UpdateProfileForm() {
   const router = useRouter();

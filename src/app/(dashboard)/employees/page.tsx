@@ -13,15 +13,10 @@ import {
 import { useCompany } from '@/hooks/company/useCompany';
 import { useEmployee } from '@/hooks/employee/useEmployee';
 
-import
-CreateEmployeeModal
-from '@/components/CreateEmployeeModal/CreateEmployeeModal';
-import {
-  CreateEmployeeFormData,
-// eslint-disable-next-line max-len
-} from '@/components/CreateEmployeeModal/interfaces/create-employee-form-data.interface';
 import EmployeeTable from '@/components/EmployeeTable/EmployeeTable';
-
+import
+  CreateEmployeeModal
+  from '@/components/Modals/CreateEmployeeModal/CreateEmployeeModal';
 export default function Employees() {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -30,7 +25,6 @@ export default function Employees() {
   } = useCompany();
   const {
     getEmployees,
-    createEmployee,
     activateEmployee,
     deactivateEmployee,
     deleteEmployee,
@@ -57,15 +51,6 @@ export default function Employees() {
     },
     [deleteEmployee],
   );
-
-  const handleCreateEmployee = useCallback((data: CreateEmployeeFormData) => {
-    if (company?.id) {
-        createEmployee({
-          ...data,
-          companyId: company?.id as string,
-        });
-    }
-  }, [company?.id, createEmployee]);
 
   useEffect(() => {
     if (company?.id) {
@@ -100,7 +85,6 @@ export default function Employees() {
       <CreateEmployeeModal
         isOpen={isOpen}
         onClose={onClose}
-        createEmployee={handleCreateEmployee}
       />
     </>
   );

@@ -3,8 +3,8 @@
 import { Box, Flex, useColorModeValue } from '@chakra-ui/react';
 
 import
-  UpdateCompanyForm
-from '@/components/UpdateCompanyForm/UpdateCompanyForm';
+UpdateCompanyForm
+from '@/components/Forms/UpdateCompanyForm/UpdateCompanyForm';
 
 export default function MyCompany() {
   return (
