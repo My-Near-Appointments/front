@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EmployeeFormButtons should render EmployeeFormButtons unchanged 1`] = `
+<div>
+  <button
+    class="chakra-button css-eoelga"
+    type="button"
+  >
+    Enviar
+  </button>
+  <button
+    class="chakra-button css-4xx2wk"
+    type="button"
+  >
+    Cancelar
+  </button>
+</div>
+`;

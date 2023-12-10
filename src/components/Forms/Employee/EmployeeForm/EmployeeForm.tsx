@@ -38,13 +38,12 @@ export default forwardRef<HTMLButtonElement, EmployeeFormProps>(
       formState: { errors, isValid },
     } = useForm({
       resolver: yupResolver(schema),
-      mode: 'onChange',
+      mode: 'onBlur',
       criteriaMode: 'all',
     });
 
     useEffect(() => {
       onFormValidityChange(isValid);
-    
     }, [isValid, onFormValidityChange, reset]);
 
     const onSubmit = async (data: EmployeeFormData) => {
@@ -55,21 +54,27 @@ export default forwardRef<HTMLButtonElement, EmployeeFormProps>(
 
     return (
       <form onSubmit={handleSubmit(onSubmit)}>
-        <FormControl>
+        <FormControl isInvalid={!!errors.name?.message}>
           <FormLabel>Nome</FormLabel>
           <Input {...register('name')} placeholder="Nome" />
           <FormHelperText>Nome do empregado</FormHelperText>
           <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
         </FormControl>
 
-        <FormControl mt={4}>
+        <FormControl mt={4} isInvalid={!!errors.photoLink?.message}>
           <FormLabel>Avatar URL</FormLabel>
           <Input {...register('photoLink')} placeholder="URL para um avatar" />
           <FormHelperText>URL para avatar do empregado</FormHelperText>
           <FormErrorMessage>{errors.photoLink?.message}</FormErrorMessage>
         </FormControl>
 
-        <button ref={ref} type="submit" style={{ display: 'none' }} />
+        <button
+          ref={ref}
+          type="submit"
+          data-testid="hidden-button"
+          style={{ display: 'none' }}
+          disabled={!isValid}
+        />
       </form>
     );
   },

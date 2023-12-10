@@ -33,7 +33,8 @@ import { useUpdateCompany } from '@/services/company-update/useCompanyUpdate';
 
 import {
   UpdateCompanyFormData,
-} from '@/components/UpdateCompanyForm/interface/update-company-form-data';
+// eslint-disable-next-line max-len
+} from '@/components/Forms/UpdateCompanyForm/interface/update-company-form-data';
 
 export default function UpdateCompanyForm() {
   const router = useRouter();
