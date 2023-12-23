@@ -27,15 +27,9 @@ import {
   Text,
 } from '@chakra-ui/react';
 
-import { Employee } from '@/hooks/employee/interfaces/employee-state.interface';
-
-interface EmployeeTableProps {
-  employees: Employee[];
-  updateEmployee: (data: Employee) => void;
-  activateEmployee: (id: string) => void;
-  deactivateEmployee: (id: string) => void;
-  deleteEmployee: (id: string) => void;
-}
+import {
+  EmployeeTableProps,
+} from '@/components/EmployeeTable/interfaces/employee-table-props.interface';
 
 export default function EmployeeTable({
   employees,
@@ -43,6 +37,7 @@ export default function EmployeeTable({
   deactivateEmployee,
   deleteEmployee,
   updateEmployee,
+  createEmployeeAvailability,
 }: EmployeeTableProps) {
   return (
     <TableContainer>
@@ -106,7 +101,12 @@ export default function EmployeeTable({
                     >
                       Editar
                     </MenuItem>
-                    <MenuItem icon={<CalendarIcon />}>Horários</MenuItem>
+                    <MenuItem
+                      onClick={() => createEmployeeAvailability(employee)}
+                      icon={<CalendarIcon />}
+                    >
+                      Horários
+                    </MenuItem>
                     <MenuItem
                       icon={<DeleteIcon />}
                       onClick={() => deleteEmployee(employee.id)}

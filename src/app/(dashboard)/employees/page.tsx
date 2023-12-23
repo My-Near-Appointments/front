@@ -16,6 +16,10 @@ import { useEmployee } from '@/hooks/employee/useEmployee';
 
 import EmployeeTable from '@/components/EmployeeTable/EmployeeTable';
 import
+  CreateEmployeeAvailabilityModal
+  // eslint-disable-next-line max-len
+  from '@/components/Modals/CreateEmployeeAvailabilityModal/CreateEmployeeAvailabilityModal';
+import
   CreateEmployeeModal
 from '@/components/Modals/CreateEmployeeModal/CreateEmployeeModal';
 import
@@ -33,6 +37,12 @@ export default function Employees() {
     isOpen: isUpdateOpen,
     onOpen: onUpdateOpen,
     onClose: onUpdateClose,
+  } = useDisclosure();
+
+  const {
+    isOpen: isAvailabilityOpen,
+    onOpen: onAvailabilityOpen,
+    onClose: onAvailabilityClose,
   } = useDisclosure();
 
   const {
@@ -73,6 +83,13 @@ export default function Employees() {
     onUpdateOpen();
   }, [onUpdateOpen]);
 
+  const createEmployeeAvailability = useCallback((employee: Employee) => {
+    setCurrentEmployee(employee);
+  
+    onAvailabilityOpen();
+  
+  }, [onAvailabilityOpen]);
+
   useEffect(() => {
     if (company?.id) {
       getEmployees(company?.id);
@@ -102,6 +119,7 @@ export default function Employees() {
             deactivateEmployee={deactivateEmployeeHandler}
             deleteEmployee={deleteEmployeeHandler}
             updateEmployee={updateEmployeeHandler}
+            createEmployeeAvailability={createEmployeeAvailability}
           />
         </Box>
       </Flex>
@@ -110,6 +128,11 @@ export default function Employees() {
         employee={currentEmployee as Employee}
         isOpen={isUpdateOpen}
         onClose={onUpdateClose}
+      />
+      <CreateEmployeeAvailabilityModal 
+        employee={currentEmployee as Employee}
+        isOpen={isAvailabilityOpen}
+        onClose={onAvailabilityClose}
       />
     </>
   );
