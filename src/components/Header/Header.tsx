@@ -46,14 +46,14 @@ export default function Header() {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
-  const router = useRouter();
+  const { push } = useRouter();
 
   const Links = getMenuLinks(isCompanyAdmin);
 
   const logout = useCallback(() => {
     dispatch({ type: AuthTypes.LOGOUT });
-    router.push('/');
-  }, [router, dispatch]);
+    push('/');
+  }, [push, dispatch]);
 
   const getLinkForCompanyHeader = useMemo(() => {
     return isAuthenticated ? '/dashboard' : '/';

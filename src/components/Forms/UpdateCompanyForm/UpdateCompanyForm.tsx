@@ -79,7 +79,7 @@ export default function UpdateCompanyForm() {
       setValue('address.number', company.address.number.toString());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [company?.id]);
 
   const showAddressRequestError = useCallback(() => {
     toast({

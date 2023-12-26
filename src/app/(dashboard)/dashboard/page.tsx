@@ -14,6 +14,7 @@ import {
   Button,
 } from '@chakra-ui/react';
 
+import { useAuthentication } from '@/hooks/authentication/useAuthentication';
 import { useCompany } from '@/hooks/company/useCompany';
 import { UserRole } from '@/hooks/user/interfaces/user-state.interface';
 import { useUser } from '@/hooks/user/useUser';
@@ -23,11 +24,12 @@ export default function Dashboard() {
   const { getUserMe } = useUserMe();
   const { getCompany } = useCompany();
   const { isCompanyAdmin, state: { user } } = useUser();
+  const { state: { isAuthenticated }} = useAuthentication();
 
   useEffect(() => {
     getUserMe();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     if (user?.id && user.role === UserRole.COMPANY_ADMIN) {

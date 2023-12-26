@@ -1,4 +1,10 @@
-import { createContext, useContext, useReducer, useState } from 'react';
+import {
+  createContext,
+  useContext,
+  useLayoutEffect,
+  useReducer,
+  useState,
+} from 'react';
 
 import {
   CompanyContextData,
@@ -15,6 +21,9 @@ import {
   CompanyTypes,
 } from '@/hooks/company/types/company-actions.types';
 import axiosInstance from '@/services/axios/axios-instance';
+import {
+  LocalStorageService,
+} from '@/services/local-storage/local-storage.service';
 
 const companyContext = createContext<CompanyContextData>({
   state: { company: null },
@@ -30,6 +39,11 @@ const companyReducer = (
 ): CompanyState => {
   switch (action.type) {
     case CompanyTypes.SET_COMPANY:
+      LocalStorageService.set<Company>(
+        'company',
+        action.payload?.company as Company,
+      );
+
       return {
         ...state,
         company: action.payload?.company || null,
@@ -43,12 +57,19 @@ export function CompanyProvider({ children }: CompanyProviderProps) {
   const [state, dispatch] = useReducer(companyReducer, { company: null });
   const [isUpdatingCompany, setIsUpdatingCompany] = useState(false);
 
+  useLayoutEffect(() => {
+    const company = LocalStorageService.get('company');
+
+    if (company) {
+      dispatch({ type: CompanyTypes.SET_COMPANY, payload: { company } });
+    }
+  }, []);
+
   const getCompany = async (userId: string) => {
     setIsUpdatingCompany(true);
+
     try {
-      const response = await axiosInstance.get(
-        `/company/${userId}`,
-      );
+      const response = await axiosInstance.get(`/company/${userId}`);
 
       dispatch({
         type: CompanyTypes.SET_COMPANY,

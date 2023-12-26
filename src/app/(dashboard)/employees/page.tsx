@@ -95,7 +95,7 @@ export default function Employees() {
       getEmployees(company?.id);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [company?.id]);
 
   return (
     <>

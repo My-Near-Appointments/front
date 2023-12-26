@@ -6,6 +6,9 @@ import { ChakraProvider, extendTheme } from '@chakra-ui/react';
 import { AuthProvider } from '@/hooks/authentication/useAuthentication';
 import { CompanyProvider } from '@/hooks/company/useCompany';
 import { EmployeeProvider } from '@/hooks/employee/useEmployee';
+import {
+  EmployeeAvailabilityProvider,
+} from '@/hooks/employee-availability/useEmployeeAvailability';
 import { UserProvider } from '@/hooks/user/useUser';
 
 const theme = extendTheme({
@@ -21,6 +24,7 @@ const providers = [
   { provider: UserProvider, props: {} },
   { provider: CompanyProvider, props: {} },
   { provider: EmployeeProvider, props: {} },
+  { provider: EmployeeAvailabilityProvider, props: {}},
   { provider: AuthProvider, props: {} },
 ];
 

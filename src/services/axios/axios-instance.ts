@@ -21,10 +21,15 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   function (error) {
-    if (error.response && error.response.status === 401) {
-      localStorage.removeItem('authToken');
+    const pathname = window.location.pathname;
 
-      if (window.location.pathname !== '/login') {
+    if (error.response && error.response.status === 401) {
+      if (localStorage.getItem('authToken') && (
+        pathname !== '/' &&
+        pathname !== '/registration' &&
+        pathname !== '/login'
+      )) {
+        localStorage.removeItem('authToken');
         window.location.href = '/';
       }
 

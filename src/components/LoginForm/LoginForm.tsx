@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { BsFillPersonBadgeFill, BsFillFileLock2Fill } from 'react-icons/bs';
 import * as yup from 'yup';
@@ -34,6 +35,7 @@ const schema = yup.object().shape({
 export default function LoginForm() {
   const [isDoingLogin, setIsDoingLogin] = useState(false);
   const { dispatch } = useAuthentication();
+  const { push } = useRouter();
 
   const toast = useToast();
   const {
@@ -77,7 +79,7 @@ export default function LoginForm() {
       },
     });
 
-    window.location.href = '/dashboard';
+    push('/dashboard');
   }
 
   return (

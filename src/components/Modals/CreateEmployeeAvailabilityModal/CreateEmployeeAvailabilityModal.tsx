@@ -24,7 +24,13 @@ import {
   Box,
   FormHelperText,
   FormErrorMessage,
+  useToast,
 } from '@chakra-ui/react';
+
+import { useCompany } from '@/hooks/company/useCompany';
+import {
+  useEmployeeAvailability,
+} from '@/hooks/employee-availability/useEmployeeAvailability';
 
 import CustomDateInput from '@/components/CustomDateInput/CustomDateInput';
 import {
@@ -50,7 +56,14 @@ const schema = yup.object().shape({
 export default function CreateEmployeeAvailabilityModal({
   isOpen,
   onClose,
+  employee,
 }: CreateEmployeeAvailabilityModalProps) {
+  const toast = useToast();
+  const { createEmployeeAvailability } = useEmployeeAvailability();
+  const {
+    state: { company },
+  } = useCompany();
+
   const {
     handleSubmit,
     control,
@@ -70,45 +83,91 @@ export default function CreateEmployeeAvailabilityModal({
     onClose();
   }, [onClose, reset]);
 
-  const onSubmit = useCallback((data: CreateEmployeeAvailabilityFormProps) => {
-    const { dateRange, startTime, endTime } = data;
+  const saveDateRange = useCallback(
+    async (dateRange: EmployeeAvailabilityRange[]) => {
+      const dateRangePromises = dateRange.map(async (data) => {
+        try {
+          await createEmployeeAvailability({
+            companyId: company?.id as string,
+            employeeId: employee?.id as string,
+            start: data.start,
+            end: data.end,
+          });
+        } catch (error) {
+          toast({
+            title:
+              // eslint-disable-next-line max-len
+              'Ocorreu um erro ao tentar efetuar o registro de horário de trabalho',
+            status: 'error',
+            duration: 3000,
+            isClosable: false,
+          });
+          throw error;
+        }
 
-    if (!dateRange || dateRange.length === 0) {
-      return;
-    }
+        try {
+          await Promise.all(dateRangePromises);
 
-    let currentDate = new Date(dateRange[0]);
-    const endDate = new Date(dateRange[1]);
+          console.log('==>>> finished')
 
-    const range: EmployeeAvailabilityRange[] = [];
+          onClose();
 
-    while (currentDate <= endDate) {
-      const startDateTime = new Date(currentDate)
-      startDateTime.setHours(
-        startTime.getHours(),
-        startTime.getMinutes(),
-        startTime.getSeconds(),
-        startTime.getMilliseconds(),
-      );
-
-      const endDateTime = new Date(currentDate)
-      endDateTime.setHours(
-        endTime.getHours(),
-        endTime.getMinutes(),
-        endTime.getSeconds(),
-        endTime.getMilliseconds(),
-      );
-
-      range.push({
-        start: startDateTime,
-        end: endDateTime,
+          toast({
+            title: 'Escala de trabalho do empregado foi salva!',
+            status: 'success',
+            duration: 3000,
+            isClosable: true,
+          });
+        } catch (error) {
+          console.error('An error occurred:', error);
+        }
       });
+    },
+    [company?.id, createEmployeeAvailability, employee?.id, onClose, toast],
+  );
 
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
+  const onSubmit = useCallback(
+    async (data: CreateEmployeeAvailabilityFormProps) => {
+      const { dateRange, startTime, endTime } = data;
 
-    handleCloseModal();
-  }, [handleCloseModal]);
+      if (!dateRange || dateRange.length === 0) {
+        return;
+      }
+
+      let currentDate = new Date(dateRange[0]);
+      const endDate = new Date(dateRange[1]);
+
+      const range: EmployeeAvailabilityRange[] = [];
+
+      while (currentDate <= endDate) {
+        const startDateTime = new Date(currentDate);
+        startDateTime.setHours(
+          startTime.getHours(),
+          startTime.getMinutes(),
+          startTime.getSeconds(),
+          startTime.getMilliseconds(),
+        );
+
+        const endDateTime = new Date(currentDate);
+        endDateTime.setHours(
+          endTime.getHours(),
+          endTime.getMinutes(),
+          endTime.getSeconds(),
+          endTime.getMilliseconds(),
+        );
+
+        range.push({
+          start: startDateTime,
+          end: endDateTime,
+        });
+
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+
+      await saveDateRange(range);
+    },
+    [saveDateRange],
+  );
 
   const getDateLimit = useMemo(() => {
     const date = new Date();
