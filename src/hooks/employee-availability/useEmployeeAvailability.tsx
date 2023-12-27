@@ -67,8 +67,6 @@ export function EmployeeAvailabilityProvider({
         type: EmployeeAvailabilityTypes.SET_EMPLOYEE_AVAILABILITY,
         payload: { employees: [...state.employeeAvailability, response.data] },
       });
-    } catch (err) {
-      //
     } finally {
       setisUpdatingEmployee(false);
     }

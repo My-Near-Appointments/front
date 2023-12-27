@@ -48,9 +48,11 @@ import {
 
 import 'react-datepicker/dist/react-datepicker.css';
 const schema = yup.object().shape({
-  dateRange: yup.array().of(yup.date().required('Date range is required')),
-  startTime: yup.date().required('Start time is required'),
-  endTime: yup.date().required('End time is required'),
+  dateRange: yup
+    .array()
+    .of(yup.date().required('Preencher uma faixa de datas é obrigatório')),
+  startTime: yup.date().required('Horário de início é obrigatório'),
+  endTime: yup.date().required('Horário final é obrigatório'),
 });
 
 export default function CreateEmployeeAvailabilityModal({
@@ -85,45 +87,44 @@ export default function CreateEmployeeAvailabilityModal({
 
   const saveDateRange = useCallback(
     async (dateRange: EmployeeAvailabilityRange[]) => {
-      const dateRangePromises = dateRange.map(async (data) => {
-        try {
-          await createEmployeeAvailability({
-            companyId: company?.id as string,
-            employeeId: employee?.id as string,
-            start: data.start,
-            end: data.end,
-          });
-        } catch (error) {
-          toast({
-            title:
-              // eslint-disable-next-line max-len
-              'Ocorreu um erro ao tentar efetuar o registro de horário de trabalho',
-            status: 'error',
-            duration: 3000,
-            isClosable: false,
-          });
-          throw error;
-        }
+      const dateRangePromises = dateRange.map((data) =>
+        createEmployeeAvailability({
+          companyId: company?.id as string,
+          employeeId: employee?.id as string,
+          start: data.start,
+          end: data.end,
+        }),
+      );
 
-        try {
-          await Promise.all(dateRangePromises);
+      try {
+        await Promise.all(dateRangePromises);
 
-          console.log('==>>> finished')
-
-          onClose();
-
-          toast({
-            title: 'Escala de trabalho do empregado foi salva!',
-            status: 'success',
-            duration: 3000,
-            isClosable: true,
-          });
-        } catch (error) {
-          console.error('An error occurred:', error);
-        }
-      });
+        toast({
+          title: 'Escala de trabalho do empregado foi salva!',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
+      } catch (error) {
+        toast({
+          title:
+            // eslint-disable-next-line max-len
+            'Ocorreu um erro ao tentar efetuar o registro de horário de trabalho',
+          status: 'error',
+          duration: 3000,
+          isClosable: false,
+        });
+      } finally {
+        handleCloseModal();
+      }
     },
-    [company?.id, createEmployeeAvailability, employee?.id, onClose, toast],
+    [
+      company?.id,
+      createEmployeeAvailability,
+      employee?.id,
+      handleCloseModal,
+      toast,
+    ],
   );
 
   const onSubmit = useCallback(
@@ -191,7 +192,7 @@ export default function CreateEmployeeAvailabilityModal({
                   control={control}
                   name="dateRange"
                   render={({ field }) => (
-                    <Box position="relative">
+                    <Box position="relative" w="100%">
                       <DatePicker
                         withPortal
                         portalId="root-portal"
@@ -221,17 +222,21 @@ export default function CreateEmployeeAvailabilityModal({
                   control={control}
                   name="startTime"
                   render={({ field }) => (
-                    <DatePicker
-                      selected={field.value}
-                      onChange={(date) => field.onChange(date)}
-                      showTimeSelect
-                      showTimeSelectOnly
-                      timeIntervals={60}
-                      timeCaption="Horário"
-                      dateFormat="HH:mm"
-                      locale={ptBR}
-                      customInput={<CustomDateInput />}
-                    />
+                    <Box position="relative" w="100%">
+                      <DatePicker
+                        withPortal
+                        portalId="root-portal"
+                        selected={field.value}
+                        onChange={(date) => field.onChange(date)}
+                        showTimeSelect
+                        showTimeSelectOnly
+                        timeIntervals={60}
+                        timeCaption="Tempo"
+                        dateFormat="HH:mm"
+                        locale={ptBR}
+                        customInput={<CustomDateInput w="100%" />}
+                      />
+                    </Box>
                   )}
                 />
               </InputGroup>
@@ -246,17 +251,21 @@ export default function CreateEmployeeAvailabilityModal({
                   control={control}
                   name="endTime"
                   render={({ field }) => (
-                    <DatePicker
-                      selected={field.value}
-                      onChange={(date) => field.onChange(date)}
-                      showTimeSelect
-                      showTimeSelectOnly
-                      timeIntervals={60}
-                      timeCaption="Horário"
-                      dateFormat="HH:mm"
-                      locale={ptBR}
-                      customInput={<CustomDateInput />}
-                    />
+                    <Box position="relative" w="100%">
+                      <DatePicker
+                        withPortal
+                        portalId="root-portal"
+                        selected={field.value}
+                        onChange={(date) => field.onChange(date)}
+                        showTimeSelect
+                        showTimeSelectOnly
+                        timeIntervals={60}
+                        timeCaption="Tempo"
+                        dateFormat="HH:mm"
+                        locale={ptBR}
+                        customInput={<CustomDateInput />}
+                      />
+                    </Box>
                   )}
                 />
               </InputGroup>

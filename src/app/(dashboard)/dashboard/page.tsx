@@ -68,7 +68,7 @@ export default function Dashboard() {
 
         <Text fontSize={'md'} color={'gray.500'}>
           {isCompanyAdmin
-            ? 'Organize seus serviços e agendamentos'
+            ? 'Organize os horários de agendamentos'
             : 'Realize agendamentos com seus prestadores de serviço'}
         </Text>
 
@@ -78,7 +78,11 @@ export default function Dashboard() {
           variant={'solid'}
           rounded={'full'}
         >
-          <Link href="/appointments">Iniciar</Link>
+          {isCompanyAdmin ? (
+            <Link href="/employees">Organizar</Link>
+          ): (
+            <Link href="/appointments">Iniciar</Link>
+          )}
         </Button>
       </Stack>
     </Flex>

@@ -48,7 +48,11 @@ export default function Header() {
   const { colorMode, toggleColorMode } = useColorMode();
   const { push } = useRouter();
 
-  const Links = getMenuLinks(isCompanyAdmin);
+  const menuLinks = useMemo(() => {
+    const links = getMenuLinks(isCompanyAdmin);
+
+    return links.filter((item) => item.conditional);
+  }, [isCompanyAdmin]);
 
   const logout = useCallback(() => {
     dispatch({ type: AuthTypes.LOGOUT });
@@ -92,7 +96,7 @@ export default function Header() {
                 spacing={4}
                 display={{ base: 'none', md: 'flex' }}
               >
-                {Links.map((item) => (
+                {menuLinks.map((item) => (
                   <NavLink key={item.link} href={item.link}>
                     {item.name}
                   </NavLink>
@@ -143,7 +147,7 @@ export default function Header() {
         {isOpen ? (
           <Box pb={4} display={{ md: 'none' }}>
             <Stack as={'nav'} spacing={4}>
-              {Links.map((item) => (
+              {menuLinks.map((item) => (
                 <NavLink key={item.link} href={item.link}>
                   {item.name}
                 </NavLink>

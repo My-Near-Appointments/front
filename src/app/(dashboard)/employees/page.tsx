@@ -129,7 +129,7 @@ export default function Employees() {
         isOpen={isUpdateOpen}
         onClose={onUpdateClose}
       />
-      <CreateEmployeeAvailabilityModal 
+      <CreateEmployeeAvailabilityModal
         employee={currentEmployee as Employee}
         isOpen={isAvailabilityOpen}
         onClose={onAvailabilityClose}
