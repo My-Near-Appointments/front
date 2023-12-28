@@ -38,6 +38,7 @@ export default function Header() {
   const {
     state: { user },
     isCompanyAdmin,
+    setIsCompanyAdmin,
   } = useUser();
   const {
     state: { isAuthenticated },
@@ -56,8 +57,9 @@ export default function Header() {
 
   const logout = useCallback(() => {
     dispatch({ type: AuthTypes.LOGOUT });
+    setIsCompanyAdmin(false);
     push('/');
-  }, [push, dispatch]);
+  }, [dispatch, setIsCompanyAdmin, push]);
 
   const getLinkForCompanyHeader = useMemo(() => {
     return isAuthenticated ? '/dashboard' : '/';

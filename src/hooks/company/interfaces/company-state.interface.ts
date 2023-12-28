@@ -21,4 +21,5 @@ export interface Company {
 
 export interface CompanyState {
   company: Company | null;
+  companies: Company[];
 }

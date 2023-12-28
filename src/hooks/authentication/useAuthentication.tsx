@@ -38,7 +38,7 @@ const authReducer = (state: AuthState, action: AuthActions): AuthState => {
         token: action.payload?.token || '',
       };
     case AuthTypes.LOGOUT:
-      LocalStorageService.remove('authToken');
+      LocalStorageService.clear();
 
       return {
         ...state,

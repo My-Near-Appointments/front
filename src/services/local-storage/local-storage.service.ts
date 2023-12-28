@@ -24,4 +24,12 @@ export class LocalStorageService {
     console.error(error);
     }
   }
+
+  static clear() {
+    const uiColorMode = localStorage.getItem('chakra-ui-color-mode') as string;
+
+    window.localStorage.clear();
+
+    localStorage.setItem('chakra-ui-color-mode', uiColorMode?.toString());
+  }
 }

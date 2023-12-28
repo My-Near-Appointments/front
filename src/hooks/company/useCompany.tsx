@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import {
   createContext,
   useContext,
@@ -26,11 +27,12 @@ import {
 } from '@/services/local-storage/local-storage.service';
 
 const companyContext = createContext<CompanyContextData>({
-  state: { company: null },
+  state: { company: null, companies: [] },
   dispatch: () => Promise<void>,
   isUpdatingCompany: false,
-  // eslint-disable-next-line no-unused-vars
-  getCompany: async (userId: string) => {},
+  getCompanyByOwnerId: async (userId: string) => {},
+  getCompanyById: async (id: string) => {},
+  getCompanies: async () => {},
 });
 
 const companyReducer = (
@@ -48,28 +50,95 @@ const companyReducer = (
         ...state,
         company: action.payload?.company || null,
       };
+
+    case CompanyTypes.SET_COMPANIES: {
+      const updatedCompanies = action.payload?.companies as Company[];
+
+      LocalStorageService.set<Company[]>('companies', updatedCompanies);
+
+      return {
+        ...state,
+        companies: updatedCompanies,
+      };
+    }
+
     default:
       return state;
   }
 };
 
 export function CompanyProvider({ children }: CompanyProviderProps) {
-  const [state, dispatch] = useReducer(companyReducer, { company: null });
+  const [state, dispatch] = useReducer(companyReducer, {
+    company: null,
+    companies: [],
+  });
   const [isUpdatingCompany, setIsUpdatingCompany] = useState(false);
 
   useLayoutEffect(() => {
     const company = LocalStorageService.get('company');
+    const companies = LocalStorageService.get('companies');
 
     if (company) {
       dispatch({ type: CompanyTypes.SET_COMPANY, payload: { company } });
     }
+
+    if (companies) {
+      dispatch({ type: CompanyTypes.SET_COMPANIES, payload: { companies } });
+    }
   }, []);
 
-  const getCompany = async (userId: string) => {
+  const getCompanies = async () => {
     setIsUpdatingCompany(true);
 
     try {
-      const response = await axiosInstance.get(`/company/${userId}`);
+      const response = await axiosInstance.get('/company');
+
+      dispatch({
+        type: CompanyTypes.SET_COMPANIES,
+        payload: {
+          companies: response.data as Company[],
+        },
+      });
+    } catch (err) {
+      //
+    } finally {
+      setIsUpdatingCompany(false);
+    }
+  };
+
+  const getCompanyById = async (id: string) => {
+    setIsUpdatingCompany(true);
+
+    try {
+      const response = await axiosInstance.get(`/company/${id}`);
+
+      const companyIndex = state.companies
+        .findIndex((company) => company.id === id);
+
+      const companies = [
+        ...state.companies,
+      ]
+
+      companies[companyIndex] = response.data as Company;
+
+      dispatch({
+        type: CompanyTypes.SET_COMPANIES,
+        payload: {
+          companies: companies,
+        },
+      });
+    } catch (err) {
+      //
+    } finally {
+      setIsUpdatingCompany(false);
+    }
+  };
+
+  const getCompanyByOwnerId = async (userId: string) => {
+    setIsUpdatingCompany(true);
+
+    try {
+      const response = await axiosInstance.get(`/company/owner/${userId}`);
 
       dispatch({
         type: CompanyTypes.SET_COMPANY,
@@ -86,7 +155,14 @@ export function CompanyProvider({ children }: CompanyProviderProps) {
 
   return (
     <companyContext.Provider
-      value={{ state, dispatch, isUpdatingCompany, getCompany }}
+      value={{
+        state,
+        dispatch,
+        isUpdatingCompany,
+        getCompanyById,
+        getCompanyByOwnerId,
+        getCompanies,
+      }}
     >
       {children}
     </companyContext.Provider>

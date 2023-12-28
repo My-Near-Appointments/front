@@ -8,7 +8,7 @@ export const getMenuLinks = (isCompanyAdmin: boolean): MenuLinks[] => [
   {
     name: 'Agendamentos',
     link: '/appointments',
-    conditional: true,
+    conditional: !isCompanyAdmin,
   },
   {
     name: 'Empregados',

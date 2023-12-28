@@ -16,27 +16,30 @@ import {
 
 import { useAuthentication } from '@/hooks/authentication/useAuthentication';
 import { useCompany } from '@/hooks/company/useCompany';
-import { UserRole } from '@/hooks/user/interfaces/user-state.interface';
 import { useUser } from '@/hooks/user/useUser';
 import { useUserMe } from '@/services/user-me/useUserMe';
 
 export default function Dashboard() {
   const { getUserMe } = useUserMe();
-  const { getCompany } = useCompany();
+  const { getCompanyByOwnerId } = useCompany();
   const { isCompanyAdmin, state: { user } } = useUser();
   const { state: { isAuthenticated }} = useAuthentication();
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      return;
+    }
+
     getUserMe();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
   useEffect(() => {
-    if (user?.id && user.role === UserRole.COMPANY_ADMIN) {
-      getCompany(user?.id);
+    if (user?.id && isCompanyAdmin) {
+      getCompanyByOwnerId(user?.id);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]);
+  }, [user?.id, isCompanyAdmin]);
 
   return (
     <Flex
