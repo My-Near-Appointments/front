@@ -3,6 +3,7 @@ import { Employee } from '@/hooks/employee/interfaces/employee-state.interface';
 
 export enum EmployeeTypes {
   SET_EMPLOYEES = 'SET_EMPLOYEES',
+  RESET_EMPLOYEES = 'RESET_EMPLOYEES',
   UPDATE_EMPLOYEE = 'UPDATE_EMPLOYEE',
   DELETE_EMPLOYEE = 'DELETE_EMPLOYEE',
 }
@@ -35,7 +36,12 @@ export type DeleteEmployeeAction = {
   payload: DeleteEmployeePayload;
 }
 
+export type ResetEmployeesAction = {
+  type: EmployeeTypes.RESET_EMPLOYEES;
+}
+
 export type EmployeeActions =
   | setEmployeesAction
   | UpdateEmployeeAction
-  | DeleteEmployeeAction;
+  | DeleteEmployeeAction
+  | ResetEmployeesAction;

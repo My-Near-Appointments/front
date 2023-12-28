@@ -21,5 +21,8 @@ export interface EmployeeAvailabilityContextData {
   getByCompanyId: (
     companyId: string,
   ) => Promise<EmployeeAvailability[] | undefined>;
+  getByEmployeeId: (
+    employeeId: string,
+  ) => Promise<EmployeeAvailability[] | undefined>;
   isUpdatingEmployee: boolean;
 }

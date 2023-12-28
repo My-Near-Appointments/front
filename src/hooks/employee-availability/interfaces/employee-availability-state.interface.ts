@@ -3,6 +3,7 @@ export interface EmployeeAvailability {
   start: Date;
   end: Date;
   companyId: string;
+  employeeId: string;
 }
 
 export interface CreateEmployeeAvailability {

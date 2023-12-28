@@ -47,6 +47,7 @@ import {
 } from '@/components/Modals/CreateEmployeeAvailabilityModal/interfaces/create-employee-availability-modal-props.interface';
 
 import 'react-datepicker/dist/react-datepicker.css';
+
 const schema = yup.object().shape({
   dateRange: yup
     .array()

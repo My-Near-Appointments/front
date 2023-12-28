@@ -55,6 +55,11 @@ const employeeReducer = (
             : employee,
         ),
       };
+    case EmployeeTypes.RESET_EMPLOYEES:
+      return {
+        ...state,
+        employees: [],
+      }
     case EmployeeTypes.DELETE_EMPLOYEE:
       return {
         ...state,

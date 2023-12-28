@@ -27,6 +27,7 @@ const employeeAvailabilityContext =
     dispatch: () => Promise<void>,
     createEmployeeAvailability: async () => {},
     getByCompanyId: async (companyId: string) => Promise.resolve(undefined),
+    getByEmployeeId: async (employeeId: string) => Promise.resolve(undefined),
     isUpdatingEmployee: false,
   });
 
@@ -93,6 +94,27 @@ export function EmployeeAvailabilityProvider({
     }
   };
 
+  const getByEmployeeId = async (employeeId: string) => {
+    setisUpdatingEmployee(true);
+
+    try {
+      const response = await axiosInstance.get(
+        `employee-availability/${employeeId}`,
+      );
+
+      dispatch({
+        type: EmployeeAvailabilityTypes.SET_EMPLOYEE_AVAILABILITY,
+        payload: { employees: response.data },
+      });
+
+      return response.data;
+    } catch (err) {
+      //
+    } finally {
+      setisUpdatingEmployee(false);
+    }
+  };
+
   return (
     <employeeAvailabilityContext.Provider
       value={{
@@ -101,6 +123,7 @@ export function EmployeeAvailabilityProvider({
         isUpdatingEmployee,
         createEmployeeAvailability,
         getByCompanyId,
+        getByEmployeeId,
       }}
     >
       {children}

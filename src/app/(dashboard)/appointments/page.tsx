@@ -21,6 +21,11 @@ import {
 
 import { Company } from '@/hooks/company/interfaces/company-state.interface';
 import { useCompany } from '@/hooks/company/useCompany';
+import { EmployeeTypes } from '@/hooks/employee/types/employee-actions.types';
+import { useEmployee } from '@/hooks/employee/useEmployee';
+import {
+  useEmployeeAvailability,
+} from '@/hooks/employee-availability/useEmployeeAvailability';
 
 import
   CreateAppointmentModal
@@ -30,6 +35,15 @@ export default function Appointments() {
   const [currentCompany, setCurrentCompany] = useState<Company>();
   const [currentCompanyId, setCurrentCompanyId] = useState<string>('');
   const [isLoadingCompany, setIsLoadingCompany] = useState(false);
+  const {
+    dispatch,
+    getEmployees,
+    state: { employees },
+  } = useEmployee();
+  const {
+    getByEmployeeId,
+    state: { employeeAvailability },
+  } = useEmployeeAvailability();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const {
@@ -54,6 +68,15 @@ export default function Appointments() {
     `;
   }, []);
 
+  const availabilityByEmployeeId = useCallback(
+    async (employeeIds: string[]) => {
+      employeeIds.forEach(async (employeeId) => {
+        await getByEmployeeId(employeeId);
+      });
+    },
+    [getByEmployeeId],
+  );
+
   const onOpenModal = useCallback(
     async (companyId: string) => {
       setCurrentCompanyId(companyId);
@@ -61,22 +84,37 @@ export default function Appointments() {
 
       try {
         await getCompanyById(companyId);
+        dispatch({ type: EmployeeTypes.RESET_EMPLOYEES });
+        await getEmployees(companyId);
 
-        const company = companies.find(company => company.id === companyId);
+        const company = companies.find((company) => company.id === companyId);
+        const employeeIds = employees?.map((employee) => employee.id);
+
+        await availabilityByEmployeeId([employeeIds[0]]);
 
         setCurrentCompany(company as Company);
-      
       } finally {
         onOpen();
         setIsLoadingCompany(false);
       }
     },
-    [companies, getCompanyById, onOpen],
+    [
+      availabilityByEmployeeId,
+      companies,
+      dispatch,
+      employees,
+      getCompanyById,
+      getEmployees,
+      onOpen,
+    ],
   );
 
-  const canShowLoading = useCallback((companyId: string) => {
-    return isLoadingCompany && currentCompanyId === companyId;
-  }, [currentCompanyId, isLoadingCompany]);
+  const canShowLoading = useCallback(
+    (companyId: string) => {
+      return isLoadingCompany && currentCompanyId === companyId;
+    },
+    [currentCompanyId, isLoadingCompany],
+  );
 
   return (
     <>
@@ -132,6 +170,8 @@ export default function Appointments() {
       </Flex>
       <CreateAppointmentModal
         currentCompany={currentCompany as Company}
+        employees={employees}
+        employeeAvailability={employeeAvailability}
         isOpen={isOpen}
         onClose={onClose}
       />
