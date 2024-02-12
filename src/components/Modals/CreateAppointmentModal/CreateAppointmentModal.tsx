@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 import { yupResolver } from '@hookform/resolvers/yup';
 import { format } from 'date-fns';
@@ -34,6 +34,10 @@ import {
 
 import CustomDateInput from '@/components/CustomDateInput/CustomDateInput';
 import {
+  CreateAppointmentFormProps,
+  // eslint-disable-next-line max-len
+} from '@/components/Modals/CreateAppointmentModal/interfaces/create-appointment-form-props.interface';
+import {
   CreateAppointmentModalProps,
   // eslint-disable-next-line max-len
 } from '@/components/Modals/CreateAppointmentModal/interfaces/create-appointment-modal-props.interface';
@@ -41,7 +45,7 @@ import {
 import 'react-datepicker/dist/react-datepicker.css';
 
 const schema = yup.object().shape({
-  appointmentDate: yup.lazy((value) =>
+  appointmentDate: yup.lazy((value = {}) =>
     yup.object().shape(
       Object.keys(value).reduce((shape: Record<string, any>, key) => {
         shape[key] = yup
@@ -51,10 +55,10 @@ const schema = yup.object().shape({
       }, {}),
     ),
   ),
-  appointmentSlot: yup.lazy((value) =>
+  appointmentSlot: yup.lazy((value = {}) =>
     yup.object().shape(
       Object.keys(value).reduce((shape: Record<string, any>, key) => {
-        shape[key] = yup.date().required('A slot selection is required');
+        shape[key] = yup.date().required('É necessário escolher um slot');
         return shape;
       }, {}),
     ),
@@ -69,7 +73,8 @@ export default function CreateAppointmentModal({
 }: CreateAppointmentModalProps) {
   const {
     control,
-    formState: { errors },
+    formState: { errors, isValid },
+    handleSubmit,
     setValue,
     watch,
   } = useForm({
@@ -78,6 +83,10 @@ export default function CreateAppointmentModal({
   });
 
   const selectedDates = watch('appointmentDate');
+
+  useEffect(() => {
+    console.log(selectedDates)
+  }, [selectedDates]);
 
   const availableDates = useCallback(
     (employeeId: string) => {
@@ -124,14 +133,34 @@ export default function CreateAppointmentModal({
         return [];
       }
 
-      const start = new Date(selectedDate);
-      start.setHours(0, 0, 0, 0);
-      const end = new Date(selectedDate);
-      end.setHours(23, 59, 59, 999);
+      const availabilityForDay = employeeAvailability
+        .filter((availability) => {
+          const availabilityDate = new Date(availability.start);
+          return (
+            availability.employeeId === employee.id &&
+            availabilityDate.toDateString() === selectedDate.toDateString()
+          );
+        })
+        .map((availability) => ({
+          start: new Date(availability.start),
+          end: new Date(availability.end),
+        }));
 
-      return generateAppointmentSlots(start, end);
+      if (availabilityForDay.length === 0) {
+        return [];
+      }
+
+      const { start, end } = availabilityForDay[0];
+
+      const slots = generateAppointmentSlots(start, end);
+
+      return slots;
     });
-  }, [employees, selectedDates]);
+  }, [employees, selectedDates, employeeAvailability]);
+
+  const onSubmit = useCallback(async (data: CreateAppointmentFormProps) => {
+    console.log(data);
+  }, []);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -139,36 +168,36 @@ export default function CreateAppointmentModal({
       <ModalContent>
         <ModalHeader>Agendamentos</ModalHeader>
         <ModalCloseButton />
-        <ModalBody pb={6}>
-          <Card maxW="sm">
-            <CardHeader>
-              <Heading size="md">
-                Inicie um agendamento com um profissional abaixo
-              </Heading>
-            </CardHeader>
-            <CardBody>
-              <Stack divider={<StackDivider />} spacing="4">
-                {employees.length > 0 &&
-                  employees.map((employee) => (
-                    <Box key={employee.id}>
-                      <Heading size="xs">
-                        <Box
-                          display="flex"
-                          justifyContent="flex-start"
-                          alignItems="center"
-                          as="div"
-                        >
-                          <Avatar
-                            name={employee.name}
-                            src={employee.photoLink}
-                            mr="2"
-                          />
-                          {employee.name}
-                        </Box>
-                      </Heading>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <ModalBody pb={6}>
+            <Card maxW="sm">
+              <CardHeader>
+                <Heading size="md">
+                  Inicie um agendamento com um profissional abaixo
+                </Heading>
+              </CardHeader>
+              <CardBody>
+                <Stack divider={<StackDivider />} spacing="4">
+                  {employees.length > 0 &&
+                    employees.map((employee) => (
+                      <Box key={employee.id}>
+                        <Heading size="xs">
+                          <Box
+                            display="flex"
+                            justifyContent="flex-start"
+                            alignItems="center"
+                            as="div"
+                          >
+                            <Avatar
+                              name={employee.name}
+                              src={employee.photoLink}
+                              mr="2"
+                            />
+                            {employee.name}
+                          </Box>
+                        </Heading>
 
-                      <Box mt="4">
-                        <form>
+                        <Box mt="4">
                           <FormControl>
                             <FormLabel>Data para agendamento</FormLabel>
                             <InputGroup className="dark-theme">
@@ -184,9 +213,10 @@ export default function CreateAppointmentModal({
                                         portalId="root-portal2"
                                         selected={field?.value}
                                         onChange={(date) => {
-                                          setValue('appointmentDate', {
-                                            [employee.id]: date,
-                                          });
+                                          setValue(
+                                            `appointmentDate.${employee.id}`,
+                                            date,
+                                          );
                                         }}
                                         value={
                                           field?.value
@@ -227,7 +257,11 @@ export default function CreateAppointmentModal({
                                   value={field.value}
                                   onChange={field.onChange}
                                 >
-                                  <Stack spacing={4} direction="row">
+                                  <Stack
+                                    spacing={4}
+                                    direction="row"
+                                    flexWrap="wrap"
+                                  >
                                     {slots.map((slot, j) => (
                                       <Radio
                                         key={j}
@@ -241,20 +275,25 @@ export default function CreateAppointmentModal({
                               )}
                             />
                           ))}
-                        </form>
+                        </Box>
                       </Box>
-                    </Box>
-                  ))}
-              </Stack>
-            </CardBody>
-          </Card>
-        </ModalBody>
-        <ModalFooter>
-          <Button colorScheme="blue" mr={3}>
-            Agendar
-          </Button>
-          <Button onClick={onClose}>Cancel</Button>
-        </ModalFooter>
+                    ))}
+                </Stack>
+              </CardBody>
+            </Card>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              type="submit"
+              colorScheme="green"
+              mr={3}
+              isDisabled={!isValid}
+            >
+              Agendar
+            </Button>
+            <Button onClick={onClose}>Cancel</Button>
+          </ModalFooter>
+        </form>
       </ModalContent>
     </Modal>
   );

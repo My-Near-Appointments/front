@@ -90,7 +90,7 @@ export default function Appointments() {
         const company = companies.find((company) => company.id === companyId);
         const employeeIds = employees?.map((employee) => employee.id);
 
-        await availabilityByEmployeeId([employeeIds[0]]);
+        await availabilityByEmployeeId(employeeIds);
 
         setCurrentCompany(company as Company);
       } finally {

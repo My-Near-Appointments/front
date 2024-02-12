@@ -36,11 +36,20 @@ const employeeAvailabilityReducer = (
   action: setEmployeeAvailabilityAction,
 ): EmployeeAvailabilityState => {
   switch (action.type) {
-    case 'SET_EMPLOYEE_AVAILABILITY':
+    case EmployeeAvailabilityTypes.SET_EMPLOYEE_AVAILABILITY: {
+      const updatedEmployeesMap = new Map(
+        state.employeeAvailability.map((employee) => [employee.id, employee]),
+      );
+
+      action.payload.employees.forEach((employee) => {
+        updatedEmployeesMap.set(employee.id, employee);
+      });
+
       return {
         ...state,
-        employeeAvailability: action.payload.employees,
+        employeeAvailability: Array.from(updatedEmployeesMap.values()),
       };
+    }
     default:
       return state;
   }

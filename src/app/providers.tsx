@@ -3,6 +3,7 @@
 import { CacheProvider } from '@chakra-ui/next-js';
 import { ChakraProvider, extendTheme } from '@chakra-ui/react';
 
+import { AppointmentProvider } from '@/hooks/appointment/useAppointment';
 import { AuthProvider } from '@/hooks/authentication/useAuthentication';
 import { CompanyProvider } from '@/hooks/company/useCompany';
 import { EmployeeProvider } from '@/hooks/employee/useEmployee';
@@ -25,6 +26,7 @@ const providers = [
   { provider: CompanyProvider, props: {} },
   { provider: EmployeeProvider, props: {} },
   { provider: EmployeeAvailabilityProvider, props: {}},
+  { provider: AppointmentProvider, props: {}},
   { provider: AuthProvider, props: {} },
 ];
 
