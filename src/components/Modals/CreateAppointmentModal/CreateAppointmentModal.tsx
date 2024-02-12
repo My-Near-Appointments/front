@@ -5,7 +5,6 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import DatePicker from 'react-datepicker';
 import { Controller, useForm } from 'react-hook-form';
-import * as yup from 'yup';
 
 import {
   Modal,
@@ -39,6 +38,9 @@ import {
 } from '@/hooks/appointment/interfaces/appointments-state.interface';
 import { useAppointment } from '@/hooks/appointment/useAppointment';
 import { useUser } from '@/hooks/user/useUser';
+import {
+  useCreateAppointmentSchema,
+} from '@/hooks/validations/create-appointment/useCreateAppointmentSchema';
 
 import CustomDateInput from '@/components/CustomDateInput/CustomDateInput';
 import {
@@ -49,29 +51,9 @@ import {
   CreateAppointmentModalProps,
   // eslint-disable-next-line max-len
 } from '@/components/Modals/CreateAppointmentModal/interfaces/create-appointment-modal-props.interface';
-
 import 'react-datepicker/dist/react-datepicker.css';
 
-const schema = yup.object().shape({
-  appointmentDate: yup.lazy((value = {}) =>
-    yup.object().shape(
-      Object.keys(value).reduce((shape: Record<string, any>, key) => {
-        shape[key] = yup
-          .date()
-          .required('Preencher uma faixa de datas é obrigatório');
-        return shape;
-      }, {}),
-    ),
-  ),
-  appointmentSlot: yup.lazy((value = {}) =>
-    yup.object().shape(
-      Object.keys(value).reduce((shape: Record<string, any>, key) => {
-        shape[key] = yup.date().required('É necessário escolher um slot');
-        return shape;
-      }, {}),
-    ),
-  ),
-});
+const ONE_HOUR = 60 * 60 * 1000;
 
 export default function CreateAppointmentModal({
   isOpen,
@@ -81,6 +63,7 @@ export default function CreateAppointmentModal({
   currentCompany,
 }: CreateAppointmentModalProps) {
   const toast = useToast();
+  const appointmentSchema = useCreateAppointmentSchema();
 
   const {
     control,
@@ -90,7 +73,7 @@ export default function CreateAppointmentModal({
     watch,
   } = useForm({
     mode: 'onChange',
-    resolver: yupResolver(schema),
+    resolver: yupResolver(appointmentSchema),
   });
 
   const {
@@ -132,8 +115,8 @@ export default function CreateAppointmentModal({
         const appointmentEnd = new Date(appointment.end);
         return (
           (current >= appointmentStart && current < appointmentEnd) ||
-          (new Date(current.getTime() + 60 * 60 * 1000) > appointmentStart &&
-            new Date(current.getTime() + 60 * 60 * 1000) <= appointmentEnd)
+          (new Date(current.getTime() + ONE_HOUR) > appointmentStart &&
+            new Date(current.getTime() + ONE_HOUR) <= appointmentEnd)
         );
       });
 
