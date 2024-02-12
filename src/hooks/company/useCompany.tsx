@@ -31,7 +31,7 @@ const companyContext = createContext<CompanyContextData>({
   dispatch: () => Promise<void>,
   isUpdatingCompany: false,
   getCompanyByOwnerId: async (userId: string) => {},
-  getCompanyById: async (id: string) => {},
+  getCompanyById: async (id: string) => Promise.resolve({} as Company),
   getCompanies: async () => {},
 });
 
@@ -110,7 +110,11 @@ export function CompanyProvider({ children }: CompanyProviderProps) {
     setIsUpdatingCompany(true);
 
     try {
-      const response = await axiosInstance.get(`/company/${id}`);
+      const response = await axiosInstance.get<Company>(`/company/${id}`);
+
+      if (!response.data) {
+        throw new Error('Company not found');
+      }
 
       const companyIndex = state.companies
         .findIndex((company) => company.id === id);
@@ -119,7 +123,7 @@ export function CompanyProvider({ children }: CompanyProviderProps) {
         ...state.companies,
       ]
 
-      companies[companyIndex] = response.data as Company;
+      companies[companyIndex] = response.data;
 
       dispatch({
         type: CompanyTypes.SET_COMPANIES,
@@ -127,8 +131,8 @@ export function CompanyProvider({ children }: CompanyProviderProps) {
           companies: companies,
         },
       });
-    } catch (err) {
-      //
+
+      return response.data;
     } finally {
       setIsUpdatingCompany(false);
     }

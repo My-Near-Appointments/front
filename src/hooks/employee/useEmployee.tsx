@@ -14,6 +14,7 @@ import {
 } from '@/hooks/employee/interfaces/employee-provider-props.interface';
 import {
   CreateEmployee,
+  Employee,
   EmployeeState,
   UpdateEmployee,
 } from '@/hooks/employee/interfaces/employee-state.interface';
@@ -32,7 +33,7 @@ const employeeContext = createContext<EmployeeContextData>({
   deleteEmployee: async () => {},
   isUpdatingEmployee: false,
   createEmployee: async (data: CreateEmployee) => {},
-  getEmployees: async (companyId: string) => {},
+  getEmployees: async (companyId: string) => Promise.resolve([]),
   getEmployeeById: async (id: string) => Promise.resolve(undefined),
 });
 
@@ -99,14 +100,14 @@ export function EmployeeProvider({ children }: EmployeeProviderProps) {
     setisUpdatingEmployee(true);
 
     try {
-      const response = await axiosInstance.get(`/employee/${id}`);
+      const response = await axiosInstance.get<Employee[]>(`/employee/${id}`);
 
       dispatch({
         type: EmployeeTypes.SET_EMPLOYEES,
         payload: { employees: response.data },
       });
-    } catch (err) {
-      //
+
+      return response.data;
     } finally {
       setisUpdatingEmployee(false);
     }

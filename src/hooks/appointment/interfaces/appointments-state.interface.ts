@@ -10,7 +10,6 @@ export interface Appointment {
 }
 
 export interface CreateAppointment {
-  id: string;
   start: Date;
   end: Date;
   userId: string;

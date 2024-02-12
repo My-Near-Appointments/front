@@ -2,6 +2,7 @@
 import { Dispatch } from 'react';
 
 import {
+  Appointment,
   AppointmentState,
   CreateAppointment,
 } from '@/hooks/appointment/interfaces/appointments-state.interface';
@@ -13,5 +14,6 @@ export interface AppointmentContextData {
   state: AppointmentState;
   dispatch: Dispatch<AppointmentActions>;
   create: (appointment: CreateAppointment) => Promise<void>;
+  getFilteredByEmployeeId: (employeeId: string) => Appointment[];
   getByEmployeeId: (employeeId: string) => Promise<void>;
 }

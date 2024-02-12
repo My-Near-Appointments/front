@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { yupResolver } from '@hookform/resolvers/yup';
 import { format } from 'date-fns';
@@ -30,7 +30,14 @@ import {
   InputGroup,
   Radio,
   RadioGroup,
+  useToast,
 } from '@chakra-ui/react';
+
+import {
+  CreateAppointment
+} from '@/hooks/appointment/interfaces/appointments-state.interface';
+import { useAppointment } from '@/hooks/appointment/useAppointment';
+import { useUser } from '@/hooks/user/useUser';
 
 import CustomDateInput from '@/components/CustomDateInput/CustomDateInput';
 import {
@@ -70,7 +77,10 @@ export default function CreateAppointmentModal({
   onClose,
   employees,
   employeeAvailability,
+  currentCompany,
 }: CreateAppointmentModalProps) {
+  const toast = useToast();
+
   const {
     control,
     formState: { errors, isValid },
@@ -82,11 +92,12 @@ export default function CreateAppointmentModal({
     resolver: yupResolver(schema),
   });
 
-  const selectedDates = watch('appointmentDate');
+  const {
+    state: { user },
+  } = useUser();
+  const { create, getFilteredByEmployeeId } = useAppointment();
 
-  useEffect(() => {
-    console.log(selectedDates)
-  }, [selectedDates]);
+  const selectedDates = watch('appointmentDate');
 
   const availableDates = useCallback(
     (employeeId: string) => {
@@ -133,12 +144,21 @@ export default function CreateAppointmentModal({
         return [];
       }
 
+      const bookedAppointments = getFilteredByEmployeeId(employee.id);
+
       const availabilityForDay = employeeAvailability
         .filter((availability) => {
           const availabilityDate = new Date(availability.start);
           return (
             availability.employeeId === employee.id &&
-            availabilityDate.toDateString() === selectedDate.toDateString()
+            availabilityDate.toDateString() === selectedDate.toDateString() &&
+            !bookedAppointments.some((appointment) => {
+              return (
+                appointment.employeeId === employee.id &&
+                appointmentDate.toDateString() ===
+                  availabilityDate.toDateString()
+              );
+            })
           );
         })
         .map((availability) => ({
@@ -156,11 +176,60 @@ export default function CreateAppointmentModal({
 
       return slots;
     });
-  }, [employees, selectedDates, employeeAvailability]);
+  }, [employees, selectedDates, getFilteredByEmployeeId, employeeAvailability]);
 
-  const onSubmit = useCallback(async (data: CreateAppointmentFormProps) => {
-    console.log(data);
-  }, []);
+  const saveApppointment = useCallback(
+    async (startDate: Date, endDate: Date, employeeId: string) => {
+      const appointment: CreateAppointment = {
+        companyId: currentCompany.id,
+        employeeId,
+        start: new Date(startDate),
+        end: new Date(endDate),
+        userId: user?.id as string,
+      };
+
+      try {
+        await create(appointment);
+
+        toast({
+          title: 'Agendamento efetuado com sucesso!',
+          status: 'success',
+          duration: 3000,
+        });
+        onClose();
+      } catch (error) {
+        onClose();
+        toast({
+          title:
+            // eslint-disable-next-line max-len
+            'Ocorreu um erro ao tentar efetuar o registro do agendamento',
+          status: 'error',
+          duration: 3000,
+          isClosable: false,
+        });
+      }
+    },
+    [create, currentCompany?.id, onClose, toast, user?.id],
+  );
+
+  const onSubmit = useCallback(
+    async (data: CreateAppointmentFormProps) => {
+      const appointmentStartKey = Object.keys(data.appointmentSlot)[0];
+      const appointmentStart = new Date(
+        data.appointmentSlot[appointmentStartKey],
+      );
+      const appointmentEnd = new Date(
+        appointmentStart.getTime() + 60 * 60 * 1000,
+      );
+
+      await saveApppointment(
+        appointmentStart,
+        appointmentEnd,
+        appointmentStartKey,
+      );
+    },
+    [saveApppointment],
+  );
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -213,10 +282,9 @@ export default function CreateAppointmentModal({
                                         portalId="root-portal2"
                                         selected={field?.value}
                                         onChange={(date) => {
-                                          setValue(
-                                            `appointmentDate.${employee.id}`,
-                                            date,
-                                          );
+                                          setValue('appointmentDate', {
+                                            [employee.id]: date,
+                                          });
                                         }}
                                         value={
                                           field?.value

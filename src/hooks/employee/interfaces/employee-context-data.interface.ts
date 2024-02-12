@@ -13,7 +13,7 @@ export interface EmployeeContextData {
   state: EmployeeState;
   dispatch: Dispatch<EmployeeActions>;
   createEmployee: (employee: CreateEmployee) => Promise<void>;
-  getEmployees: (userId: string) => Promise<void>;
+  getEmployees: (userId: string) => Promise<Employee[]>;
   getEmployeeById: (id: string) => Promise<Employee | undefined>;
   updateEmployee: (id: string, employee: UpdateEmployee) => Promise<void>;
   deactivateEmployee: (employeeId: string) => Promise<void>;
