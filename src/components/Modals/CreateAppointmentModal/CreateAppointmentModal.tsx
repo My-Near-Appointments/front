@@ -34,7 +34,8 @@ import {
 } from '@chakra-ui/react';
 
 import {
-  CreateAppointment
+  Appointment,
+  CreateAppointment,
 } from '@/hooks/appointment/interfaces/appointments-state.interface';
 import { useAppointment } from '@/hooks/appointment/useAppointment';
 import { useUser } from '@/hooks/user/useUser';
@@ -124,18 +125,43 @@ export default function CreateAppointmentModal({
     [availableDates],
   );
 
-  const generateAppointmentSlots = (start: Date, end: Date) => {
-    const slots = [];
-    let current = new Date(start);
+  const isSlotAvailable = useCallback(
+    (current: Date, bookedAppointments: Appointment[]) => {
+      const isSlotAvailable = !bookedAppointments.some((appointment) => {
+        const appointmentStart = new Date(appointment.start);
+        const appointmentEnd = new Date(appointment.end);
+        return (
+          (current >= appointmentStart && current < appointmentEnd) ||
+          (new Date(current.getTime() + 60 * 60 * 1000) > appointmentStart &&
+            new Date(current.getTime() + 60 * 60 * 1000) <= appointmentEnd)
+        );
+      });
 
-    while (current < end) {
-      slots.push(new Date(current));
-      current.setHours(current.getHours() + 1);
-    }
-    return slots.map((slot) => ({
-      time: slot,
-    }));
-  };
+      return isSlotAvailable;
+    },
+    [],
+  );
+
+  const generateAppointmentSlots = useCallback(
+    (start: Date, end: Date, bookedAppointments: Appointment[]) => {
+      const slots = [];
+      let current = new Date(start);
+
+      while (current < end) {
+        const isAvailable = isSlotAvailable(current, bookedAppointments);
+
+        if (isAvailable) {
+          slots.push(new Date(current));
+        }
+
+        current.setHours(current.getHours() + 1);
+      }
+      return slots.map((slot) => ({
+        time: slot,
+      }));
+    },
+    [isSlotAvailable],
+  );
 
   const employeeSlots = useMemo(() => {
     return employees.map((employee) => {
@@ -145,20 +171,12 @@ export default function CreateAppointmentModal({
       }
 
       const bookedAppointments = getFilteredByEmployeeId(employee.id);
-
       const availabilityForDay = employeeAvailability
         .filter((availability) => {
           const availabilityDate = new Date(availability.start);
           return (
             availability.employeeId === employee.id &&
-            availabilityDate.toDateString() === selectedDate.toDateString() &&
-            !bookedAppointments.some((appointment) => {
-              return (
-                appointment.employeeId === employee.id &&
-                appointmentDate.toDateString() ===
-                  availabilityDate.toDateString()
-              );
-            })
+            availabilityDate.toDateString() === selectedDate.toDateString()
           );
         })
         .map((availability) => ({
@@ -172,11 +190,17 @@ export default function CreateAppointmentModal({
 
       const { start, end } = availabilityForDay[0];
 
-      const slots = generateAppointmentSlots(start, end);
+      const slots = generateAppointmentSlots(start, end, bookedAppointments);
 
       return slots;
     });
-  }, [employees, selectedDates, getFilteredByEmployeeId, employeeAvailability]);
+  }, [
+    employees,
+    selectedDates,
+    getFilteredByEmployeeId,
+    employeeAvailability,
+    generateAppointmentSlots,
+  ]);
 
   const saveApppointment = useCallback(
     async (startDate: Date, endDate: Date, employeeId: string) => {

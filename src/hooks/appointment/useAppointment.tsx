@@ -107,7 +107,7 @@ export function AppointmentProvider({ children }: AppointmentProviderProps) {
 
   const getFilteredByEmployeeId = (employeeId: string) => {
     const appointments = state.appointments.filter(
-      (appointment) => appointment.employeeId !== employeeId,
+      (appointment) => appointment.employeeId === employeeId,
     );
 
     return appointments;
