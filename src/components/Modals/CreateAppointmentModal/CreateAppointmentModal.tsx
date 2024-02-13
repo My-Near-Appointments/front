@@ -1,10 +1,11 @@
-import { useCallback, useMemo } from 'react';
+/* eslint-disable max-len */
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { yupResolver } from '@hookform/resolvers/yup';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import DatePicker from 'react-datepicker';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
 import {
   Modal,
@@ -24,12 +25,12 @@ import {
   StackDivider,
   Avatar,
   FormControl,
-  FormErrorMessage,
   FormLabel,
   InputGroup,
+  useToast,
+  FormErrorMessage,
   Radio,
   RadioGroup,
-  useToast,
 } from '@chakra-ui/react';
 
 import {
@@ -45,7 +46,6 @@ import {
 import CustomDateInput from '@/components/CustomDateInput/CustomDateInput';
 import {
   CreateAppointmentFormProps,
-  // eslint-disable-next-line max-len
 } from '@/components/Modals/CreateAppointmentModal/interfaces/create-appointment-form-props.interface';
 import {
   CreateAppointmentModalProps,
@@ -65,12 +65,17 @@ export default function CreateAppointmentModal({
   const toast = useToast();
   const appointmentSchema = useCreateAppointmentSchema();
 
+  const [selectedDates, setSelectedDates] = useState<{
+    [key: string]: Date | null;
+  }>({});
+  const [lastSelectedDate, setLastSelectedDate] = useState<Date | null>(null);
+  const [currentEmployeeId, setCurrentEmployeeId] = useState('');
+
   const {
-    control,
-    formState: { errors, isValid },
+    formState: { isValid, errors },
     handleSubmit,
     setValue,
-    watch,
+    trigger,
   } = useForm({
     mode: 'onChange',
     resolver: yupResolver(appointmentSchema),
@@ -80,8 +85,6 @@ export default function CreateAppointmentModal({
     state: { user },
   } = useUser();
   const { create, getFilteredByEmployeeId } = useAppointment();
-
-  const selectedDates = watch('appointmentDate');
 
   const availableDates = useCallback(
     (employeeId: string) => {
@@ -172,7 +175,6 @@ export default function CreateAppointmentModal({
       }
 
       const { start, end } = availabilityForDay[0];
-
       const slots = generateAppointmentSlots(start, end, bookedAppointments);
 
       return slots;
@@ -185,11 +187,45 @@ export default function CreateAppointmentModal({
     generateAppointmentSlots,
   ]);
 
+  useEffect(() => {
+    if (lastSelectedDate) {
+      setValue('appointmentDate', lastSelectedDate);
+      trigger();
+    }
+  }, [lastSelectedDate, setValue, trigger]);
+
+  const handleAppointmentDateChanges = useCallback(
+    (employeeId: string, newDate: Date | null) => {
+      setSelectedDates({
+        ...selectedDates,
+        [employeeId]: newDate,
+      });
+      setLastSelectedDate(newDate);
+
+      if (!newDate) {
+        return;
+      }
+
+      setValue('appointmentDate', newDate);
+      setCurrentEmployeeId(employeeId);
+    },
+    [selectedDates, setValue],
+  );
+
+  const handleSlotChanges = useCallback(
+    (employeeId: string, inputValue: string) => {
+      setValue('appointmentSlot', inputValue);
+      setCurrentEmployeeId(employeeId);
+      trigger();
+    },
+    [setValue, trigger],
+  );
+
   const saveApppointment = useCallback(
-    async (startDate: Date, endDate: Date, employeeId: string) => {
+    async (startDate: Date, endDate: Date) => {
       const appointment: CreateAppointment = {
         companyId: currentCompany.id,
-        employeeId,
+        employeeId: currentEmployeeId,
         start: new Date(startDate),
         end: new Date(endDate),
         userId: user?.id as string,
@@ -216,23 +252,19 @@ export default function CreateAppointmentModal({
         });
       }
     },
-    [create, currentCompany?.id, onClose, toast, user?.id],
+    [create, currentCompany.id, currentEmployeeId, onClose, toast, user?.id],
   );
 
   const onSubmit = useCallback(
     async (data: CreateAppointmentFormProps) => {
-      const appointmentStartKey = Object.keys(data.appointmentSlot)[0];
-      const appointmentStart = new Date(
-        data.appointmentSlot[appointmentStartKey],
-      );
+      const appointmentStart = new Date(data.appointmentSlot);
       const appointmentEnd = new Date(
-        appointmentStart.getTime() + 60 * 60 * 1000,
+        appointmentStart.getTime() + ONE_HOUR,
       );
 
       await saveApppointment(
         appointmentStart,
         appointmentEnd,
-        appointmentStartKey,
       );
     },
     [saveApppointment],
@@ -277,79 +309,69 @@ export default function CreateAppointmentModal({
                           <FormControl>
                             <FormLabel>Data para agendamento</FormLabel>
                             <InputGroup className="dark-theme">
-                              <Controller
-                                control={control}
-                                name={`appointmentDate.${employee.id}`}
-                                render={({ field }) => {
-                                  return (
-                                    <Box position="relative" w="100%">
-                                      <DatePicker
-                                        name={`appointmentDate.${employee.id}`}
-                                        withPortal
-                                        portalId="root-portal2"
-                                        selected={field?.value}
-                                        onChange={(date) => {
-                                          setValue('appointmentDate', {
-                                            [employee.id]: date,
-                                          });
-                                        }}
-                                        value={
-                                          field?.value
-                                            ? format(field.value, 'dd/MM/yyyy')
-                                            : ''
-                                        }
-                                        dateFormat="dd/MM/yyyy"
-                                        locale={ptBR}
-                                        customInput={<CustomDateInput />}
-                                        highlightDates={availableDates(
-                                          employee.id,
-                                        )}
-                                        filterDate={(date) =>
-                                          handleFilterDate(date, employee.id)
-                                        }
-                                      />
-                                    </Box>
-                                  );
-                                }}
-                              />
+                              <Box position="relative" w="100%">
+                                <DatePicker
+                                  name={`appointmentDate.${employee.id}`}
+                                  withPortal
+                                  portalId="root-portal2"
+                                  selected={selectedDates[employee.id]}
+                                  onChange={(date) =>
+                                    handleAppointmentDateChanges(
+                                      employee.id,
+                                      date,
+                                    )
+                                  }
+                                  value={
+                                    selectedDates[employee.id]
+                                      ? format(
+                                          selectedDates[employee.id] as Date,
+                                          'dd/MM/yyyy',
+                                        )
+                                      : ''
+                                  }
+                                  dateFormat="dd/MM/yyyy"
+                                  locale={ptBR}
+                                  customInput={<CustomDateInput />}
+                                  highlightDates={availableDates(employee.id)}
+                                  filterDate={(date) =>
+                                    handleFilterDate(date, employee.id)
+                                  }
+                                />
+                              </Box>
                             </InputGroup>
                             <FormErrorMessage>
-                              {errors.appointmentDate?.[
-                                employee.id
-                              ]?.message?.toString()}
+                              {errors.appointmentDate?.message?.toString()}
                             </FormErrorMessage>
                           </FormControl>
-
-                          {employeeSlots.map((slots, i) => (
-                            <Controller
-                              key={i}
-                              control={control}
-                              name={`appointmentSlot.${employees[i].id}`}
-                              render={({ field }) => (
-                                <RadioGroup
-                                  key={employees[i].id}
-                                  mt="4"
-                                  value={field.value}
-                                  onChange={field.onChange}
+                          {selectedDates[employee.id] &&
+                            employeeSlots.map((slots, i) => (
+                              <RadioGroup
+                                key={i + employee.id}
+                                mt="4"
+                                name={`employeeSlot.${employee.id}`}
+                              >
+                                <Stack
+                                  spacing={4}
+                                  direction="row"
+                                  flexWrap="wrap"
                                 >
-                                  <Stack
-                                    spacing={4}
-                                    direction="row"
-                                    flexWrap="wrap"
-                                  >
-                                    {slots.map((slot, j) => (
-                                      <Radio
-                                        key={j}
-                                        value={slot.time.toString()}
-                                      >
-                                        {format(slot.time, 'hh:mm')}
-                                      </Radio>
-                                    ))}
-                                  </Stack>
-                                </RadioGroup>
-                              )}
-                            />
-                          ))}
+                                  {slots.map((slot, j) => (
+                                    <Radio
+                                      key={j}
+                                      value={slot.time.toString()}
+                                      onChange={(input) =>
+                                        handleSlotChanges(
+                                          employee.id,
+                                          input.target.value,
+                                        )
+                                      }
+                                    >
+                                      {format(slot.time, 'hh:mm')}
+                                    </Radio>
+                                  ))}
+                                </Stack>
+                              </RadioGroup>
+                            ))}
                         </Box>
                       </Box>
                     ))}
