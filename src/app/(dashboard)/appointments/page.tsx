@@ -19,12 +19,13 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 
+import { useAppointment } from '@/hooks/appointment/useAppointment';
 import { Company } from '@/hooks/company/interfaces/company-state.interface';
 import { useCompany } from '@/hooks/company/useCompany';
 import { EmployeeTypes } from '@/hooks/employee/types/employee-actions.types';
 import { useEmployee } from '@/hooks/employee/useEmployee';
 import {
-  useEmployeeAvailability,
+  useEmployeeAvailability
 } from '@/hooks/employee-availability/useEmployeeAvailability';
 
 import
@@ -51,6 +52,7 @@ export default function Appointments() {
     getCompanyById,
     state: { companies },
   } = useCompany();
+  const { getByEmployeeId: getAppointmentByEmployeeId } = useAppointment();
 
   const cardBackground = useColorModeValue('white', 'gray.700');
 
@@ -77,20 +79,29 @@ export default function Appointments() {
     [getByEmployeeId],
   );
 
+  const appointmentsByEmployeeId = useCallback(
+    async (employeeIds: string[]) => {
+      employeeIds.forEach(async (employeeId) => {
+        await getAppointmentByEmployeeId(employeeId);
+      });
+    },
+    [getAppointmentByEmployeeId],
+  );
+
   const onOpenModal = useCallback(
     async (companyId: string) => {
       setCurrentCompanyId(companyId);
       setIsLoadingCompany(true);
+      dispatch({ type: EmployeeTypes.RESET_EMPLOYEES });
 
       try {
-        await getCompanyById(companyId);
-        dispatch({ type: EmployeeTypes.RESET_EMPLOYEES });
-        await getEmployees(companyId);
+        const company = await getCompanyById(companyId);
+        const employeeResponse = await getEmployees(companyId);
 
-        const company = companies.find((company) => company.id === companyId);
-        const employeeIds = employees?.map((employee) => employee.id);
+        const employeeIds = employeeResponse?.map((employee) => employee.id);
 
-        await availabilityByEmployeeId([employeeIds[0]]);
+        await availabilityByEmployeeId(employeeIds);
+        await appointmentsByEmployeeId(employeeIds);
 
         setCurrentCompany(company as Company);
       } finally {
@@ -99,10 +110,9 @@ export default function Appointments() {
       }
     },
     [
+      appointmentsByEmployeeId,
       availabilityByEmployeeId,
-      companies,
       dispatch,
-      employees,
       getCompanyById,
       getEmployees,
       onOpen,
