@@ -274,9 +274,9 @@ export default function CreateAppointmentModal({
   const handleClose = useCallback(() => {
     onClose();
     reset();
-    trigger();
     setLastSelectedDate(null);
     setSelectedDates({});
+    trigger();
     
   }, [onClose, reset, trigger]);
 

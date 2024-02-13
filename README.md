@@ -1,8 +1,10 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# My Near Appointments - Front-end
+
+Projeto escrito com [Next.js](https://nextjs.org/)
 
 ## Getting Started
 
-First, run the development server:
+Para rodar o server de desenvolvimento:
 
 ```bash
 npm run dev
@@ -12,23 +14,18 @@ yarn dev
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra [http://localhost:3000](http://localhost:3001) no seu browser para ver o resultado.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Sobre
+Este projeto é uma aplicação front-end desenvolvida com Next.js, destinada a facilitar o agendamento de compromissos próximos. Através de uma interface amigável e intuitiva, os usuários podem visualizar a disponibilidade de profissionais, escolher datas e horários, e agendar seus compromissos com facilidade.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+### Funcionalidades (barbearias):
+- **Gerenciamento de Profissionais:** Permite às empresas adicionar, editar e remover profissionais, facilitando o gerenciamento de quem oferecerá os serviços.
+- **Visualização de Agendamentos:** As empresas podem visualizar todos os agendamentos feitos pelos clientes, permitindo um controle eficiente da agenda dos profissionais.
+- **Configuração de Disponibilidade:** Possibilidade de configurar a disponibilidade de cada profissional, definindo os dias e horários em que estarão disponíveis para atendimento.
 
-## Learn More
+### Funcionalidades (clientes):
+- **Visualização de Disponibilidade:** Os usuários podem verificar a disponibilidade de profissionais em tempo real, facilitando a escolha de datas e horários para agendamentos.
+- **Agendamento de Compromissos:** Permite aos usuários agendar compromissos com profissionais específicos, escolhendo entre os horários disponíveis.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Este projeto visa oferecer uma solução prática e eficiente para o agendamento de serviços, melhorando a experiência tanto dos profissionais quanto dos clientes.
