@@ -76,6 +76,7 @@ export default function CreateAppointmentModal({
     handleSubmit,
     setValue,
     trigger,
+    reset,
   } = useForm({
     mode: 'onChange',
     resolver: yupResolver(appointmentSchema),
@@ -197,7 +198,6 @@ export default function CreateAppointmentModal({
   const handleAppointmentDateChanges = useCallback(
     (employeeId: string, newDate: Date | null) => {
       setSelectedDates({
-        ...selectedDates,
         [employeeId]: newDate,
       });
       setLastSelectedDate(newDate);
@@ -208,8 +208,9 @@ export default function CreateAppointmentModal({
 
       setValue('appointmentDate', newDate);
       setCurrentEmployeeId(employeeId);
+      trigger();
     },
-    [selectedDates, setValue],
+    [setValue, trigger],
   );
 
   const handleSlotChanges = useCallback(
@@ -252,7 +253,7 @@ export default function CreateAppointmentModal({
         });
       }
     },
-    [create, currentCompany.id, currentEmployeeId, onClose, toast, user?.id],
+    [create, currentCompany?.id, currentEmployeeId, onClose, toast, user?.id],
   );
 
   const onSubmit = useCallback(
@@ -270,8 +271,17 @@ export default function CreateAppointmentModal({
     [saveApppointment],
   );
 
+  const handleClose = useCallback(() => {
+    onClose();
+    reset();
+    trigger();
+    setLastSelectedDate(null);
+    setSelectedDates({});
+    
+  }, [onClose, reset, trigger]);
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={handleClose}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Agendamentos</ModalHeader>
